@@ -8,3 +8,17 @@ wheels/
 
 # Virtual environments
 .venv
+env/
+venv/
+
+# Environment variables (uv automatically loads .env files)
+.env
+.env.*
+!.env.example
+
+# Caches and tools
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/

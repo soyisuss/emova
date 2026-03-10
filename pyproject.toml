@@ -4,4 +4,16 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "google-cloud-storage>=3.9.0",
+    "onnxruntime-gpu>=1.24.3",
+    "opencv-python>=4.13.0.92",
+    "pymongo>=4.16.0",
+    "pyside6>=6.10.2",
+    "reportlab>=4.4.10",
+]
+
+[tool.uv.workspace]
+members = [
+    "test_prj",
+]
