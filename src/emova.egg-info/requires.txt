@@ -1,0 +1,11 @@
+opencv-python
+numpy
+onnxruntime
+pyside6
+matplotlib
+pandas
+
+[dev]
+pytest
+black
+ruff
