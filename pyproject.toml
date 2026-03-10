@@ -5,10 +5,15 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "fastapi>=0.135.1",
     "google-cloud-storage>=3.9.0",
     "onnxruntime-gpu>=1.24.3",
     "opencv-python>=4.13.0.92",
+    "passlib[argon2]>=1.7.4",
     "pymongo>=4.16.0",
     "pyside6>=6.10.2",
+    "python-jose[cryptography]>=3.5.0",
+    "python-multipart>=0.0.22",
     "reportlab>=4.4.10",
+    "uvicorn[standard]>=0.41.0",
 ]
