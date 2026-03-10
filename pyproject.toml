@@ -12,8 +12,3 @@ dependencies = [
     "pyside6>=6.10.2",
     "reportlab>=4.4.10",
 ]
-
-[tool.uv.workspace]
-members = [
-    "test_prj",
-]

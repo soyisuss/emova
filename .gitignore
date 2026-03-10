@@ -1,24 +1,62 @@
-# Python-generated files
+# Google Cloud Service Account Keys
+*.json
+!project-structure.json  # Ejemplo de excepción si necesitas un JSON no sensible
+
+# MongoDB / Atlas local configs
+.mongodb/
+
+# IA Models (Large binaries)
+models/*.pth
+models/*.onnx
+models/*.weights
+
+# Datasets
+data/raw/
+data/processed/
+datasets/
+
+# Temporary Media (RNF8 compliance)
+temp_video/
+captures/*.mp4
+captures/*.avi
+
+# Generated Reports
+reports/*.pdf
+reports/*.csv
+exports/
+
+# uv and Python environment
+.venv/
 __pycache__/
-*.py[oc]
+*.py[cod]
+*$py.class
+.python-version
+
+# Distribution / Build
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
 build/
 dist/
-wheels/
-*.egg-info
 
-# Virtual environments
-.venv
-env/
-venv/
+# ... (lo que ya tenías)
 
-# Environment variables (uv automatically loads .env files)
-.env
-.env.*
-!.env.example
+# OS-specific files (Important for Windows 11 targets) 
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
 
-# Caches and tools
-.ruff_cache/
-.pytest_cache/
-.mypy_cache/
-.coverage
-htmlcov/
+# IDE-specific (For hygiene and cross-tool collaboration)
+.vscode/
+.idea/
+*.swp
+*.sublime-project
+
+# Antigravity (Add your specific tool's config here)
+.antigravity/
