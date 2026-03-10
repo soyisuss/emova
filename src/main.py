@@ -2,18 +2,18 @@ import sys
 import os
 import cv2
 from PySide6.QtWidgets import QApplication
-from emova.gui.main_window import MainWindow
+from emova.client.gui.main_window import MainWindow
 
 # Backend imports kept for future integration
-# from emova.capture.camera import open_camera, read_frame
-# from emova.capture.fps_sampler import FPSSampler
-# from emova.model.emotion_predictor import predict_emotion
+# from emova.core.capture.camera import open_camera, read_frame
+# from emova.core.capture.fps_sampler import FPSSampler
+# from emova.core.model.emotion_predictor import predict_emotion
 
 def main():
     app = QApplication(sys.argv)
     
     # Load stylesheet
-    style_path = os.path.join(os.path.dirname(__file__), "emova", "gui", "resources", "style.qss")
+    style_path = os.path.join(os.path.dirname(__file__), "emova", "client", "gui", "assets", "style.qss")
     if os.path.exists(style_path):
         with open(style_path, "r", encoding="utf-8") as f:
             app.setStyleSheet(f.read())

@@ -1,6 +1,9 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QLineEdit, QRadioButton, QButtonGroup, QScrollArea, QFrame
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QLineEdit, QRadioButton, QButtonGroup, QScrollArea, QFrame, QMessageBox
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QIntValidator
+
+from emova.core.session.session_manager import session_manager
+from emova.client.gui.components.custom_dialog import CustomDialog
 
 class RegisterParticipantView(QWidget):
     go_back = Signal()
@@ -85,16 +88,6 @@ class RegisterParticipantView(QWidget):
         gender_layout.addWidget(rad_prefer)
         gender_layout.addStretch()
         
-        # Style radio buttons
-        rad_style = """
-            QRadioButton { font-size: 14px; font-weight: bold; }
-            QRadioButton::indicator { width: 16px; height: 16px; border-radius: 9px; border: 2px solid #555; background-color: #E6E6E6; }
-            QRadioButton::indicator:checked { background-color: #E6E6E6; border: 4px solid #555; }
-        """
-        rad_masc.setStyleSheet(rad_style)
-        rad_fem.setStyleSheet(rad_style)
-        rad_prefer.setStyleSheet(rad_style)
-        
         form_layout.addLayout(gender_layout)
         
         # Occupation
@@ -122,7 +115,6 @@ class RegisterParticipantView(QWidget):
         
         for option in freq_options:
             rad = QRadioButton(option)
-            rad.setStyleSheet(rad_style)
             self.btn_freq_group.addButton(rad)
             form_layout.addWidget(rad)
             form_layout.addSpacing(5)
@@ -142,3 +134,44 @@ class RegisterParticipantView(QWidget):
         bottom_layout.addStretch()
         
         main_layout.addLayout(bottom_layout)
+        
+        # Connect finalizing action
+        btn_finalize.clicked.connect(self.save_participant)
+
+    def save_participant(self):
+        # Extract age
+        age = self.input_age.text().strip()
+        
+        # Extract gender
+        gender = "No especificado"
+        checked_gender = self.btn_gender_group.checkedButton()
+        if checked_gender:
+            gender = checked_gender.text()
+            
+        # Extract occupation
+        occupation = self.input_occ.text().strip()
+        
+        # Extract frequency
+        frequency = "No especificado"
+        checked_freq = self.btn_freq_group.checkedButton()
+        if checked_freq:
+            frequency = checked_freq.text()
+            
+        data = {
+            "Edad": age if age else "No proporcionado",
+            "Género": gender,
+            "Ocupación": occupation if occupation else "No proporcionado",
+            "Frecuencia de Uso Digital": frequency
+        }
+        
+        # Store securely into App's central state
+        session_manager.set_participant(data)
+        
+        dialog = CustomDialog(
+            parent=self.window(),
+            title="Registro Exitoso",
+            message="Datos del participante guardados exitosamente en la sesión actual."
+        )
+        dialog.exec()
+        
+        self.go_back.emit()

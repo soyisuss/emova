@@ -1,11 +1,11 @@
 from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QStackedWidget
-from emova.gui.components.header import TopHeader
-from emova.gui.views.dashboard import DashboardView
-from emova.gui.views.password_change import PasswordChangeView
-from emova.gui.views.password_recovery import PasswordRecoveryView
-from emova.gui.views.register_task import RegisterTaskView
-from emova.gui.views.edit_tasks import EditTaskView
-from emova.gui.views.register_participant import RegisterParticipantView
+from emova.client.gui.components.header import TopHeader
+from emova.client.gui.windows.dashboard import DashboardView
+from emova.client.gui.windows.password_change import PasswordChangeView
+from emova.client.gui.windows.password_recovery import PasswordRecoveryView
+from emova.client.gui.windows.register_task import RegisterTaskView
+from emova.client.gui.windows.edit_tasks import EditTaskView
+from emova.client.gui.windows.register_participant import RegisterParticipantView
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -64,10 +64,15 @@ class MainWindow(QMainWindow):
         
         self.view_dashboard.go_to_edit_tasks.connect(lambda: self.switch_view(4))
         self.view_edit_task.go_back.connect(lambda: self.switch_view(0))
+        self.view_edit_task.go_to_add.connect(lambda: self.switch_view(3)) # Route to Create Task View directly
         
         self.view_dashboard.go_to_register_participant.connect(lambda: self.switch_view(5))
         self.view_register_participant.go_back.connect(lambda: self.switch_view(0))
         
     def switch_view(self, index):
         """Helper to change the visible widget in the stack"""
+        # If switching TO Edit Tasks (index 4), force it to reload UI dynamically from global state
+        if index == 4:
+            self.view_edit_task.load_tasks_from_session()
+            
         self.stack.setCurrentIndex(index)

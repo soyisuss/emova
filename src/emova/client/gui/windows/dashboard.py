@@ -1,11 +1,14 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QDialog
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QDialog, QGridLayout
 from PySide6.QtCore import Qt, Slot, Signal
 from PySide6.QtGui import QIcon
 import os
+import time
 
-from emova.gui.components.video_player import VideoPlayer
-from emova.gui.components.sidebar import Sidebar
-from emova.gui.camera_thread import CameraThread
+from emova.client.gui.components.video_player import VideoPlayer
+from emova.client.gui.components.sidebar import Sidebar
+from emova.client.gui.camera_thread import CameraThread
+from emova.client.gui.components.task_overlay import TaskOverlay
+from emova.core.session.session_manager import session_manager
 
 class PrivacyNoticeDialog(QDialog):
     def __init__(self, parent=None):
@@ -101,12 +104,29 @@ class DashboardView(QWidget):
         # Connect specific actions to our mockups
         btn_new_test.clicked.connect(self.show_privacy_notice)
         
+        # Central Video + Overlay Stack
+        central_video_container = QWidget()
+        central_video_layout = QGridLayout(central_video_container)
+        central_video_layout.setContentsMargins(0, 0, 0, 0)
+        
         # Video Player
         self.video_player = VideoPlayer()
         
+        # Task Overlay
+        self.task_overlay = TaskOverlay()
+        self.task_overlay.hide() # Hidden by default
+        self.task_overlay.task_completed.connect(self.handle_task_completed)
+        self.task_overlay.task_cancelled.connect(self.handle_task_cancelled)
+        self.current_task_index = 0
+        self.current_task_start_time = 0
+        
+        # Stack them together using the exact same coordinates and stretch parameters
+        central_video_layout.addWidget(self.video_player, 0, 0)
+        central_video_layout.addWidget(self.task_overlay, 0, 0, alignment=Qt.AlignmentFlag.AlignCenter)
+        
         # Absolute path to assets/images
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        icons_dir = os.path.abspath(os.path.join(current_dir, "..", "..", "..", "..", "assets", "images"))
+        icons_dir = os.path.abspath(os.path.join(current_dir, "..", "assets", "images"))
         
         # Bottom analysis actions
         bottom_actions_layout = QHBoxLayout()
@@ -132,7 +152,7 @@ class DashboardView(QWidget):
         
         # Assembly left side
         left_layout.addLayout(top_actions_layout)
-        left_layout.addWidget(self.video_player, stretch=1)
+        left_layout.addWidget(central_video_container, stretch=1)
         left_layout.addLayout(bottom_actions_layout)
         
         # Right Sidebar
@@ -156,10 +176,47 @@ class DashboardView(QWidget):
         self.btn_stop_analysis.setEnabled(True)
         self.camera_thread.start()
         
+        self.video_player.reset_timer()
+        self.video_player.start_timer()
+        
+        tasks = session_manager.tasks
+        if tasks:
+            self.current_task_index = 0
+            self.show_current_task()
+            
+    def show_current_task(self):
+        tasks = session_manager.tasks
+        if self.current_task_index < len(tasks):
+            t = tasks[self.current_task_index]
+            self.task_overlay.load_task(self.current_task_index + 1, t.get("title", ""), t.get("description", ""))
+            self.task_overlay.show()
+            self.current_task_start_time = time.time() # Begin tracking time for this task
+        else:
+            self.task_overlay.hide()
+            
+    def handle_task_completed(self):
+        # Calculate duration and save to session manager
+        duration = int(time.time() - self.current_task_start_time)
+        
+        # Ensure the tasks array is up to date and can hold this info
+        tasks = session_manager.tasks
+        if self.current_task_index < len(tasks):
+            tasks[self.current_task_index]["duration_seconds"] = duration
+            
+        self.current_task_index += 1
+        self.show_current_task()
+        
+    def handle_task_cancelled(self):
+        self.task_overlay.hide()
+        # Optionally, could also stop analysis here if cancelling a task means aborting.
+        
     def stop_camera(self):
         self.btn_start_analysis.setEnabled(True)
         self.btn_stop_analysis.setEnabled(False)
         self.camera_thread.stop()
+        
+        self.video_player.pause_timer()
+        self.task_overlay.hide()
         
     @Slot(str, float)
     def handle_emotion(self, emotion, confidence):

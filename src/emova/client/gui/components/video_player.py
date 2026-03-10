@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSlider
-from PySide6.QtCore import Qt, Slot
+from PySide6.QtCore import Qt, Slot, QTimer
 from PySide6.QtGui import QImage, QPixmap
 import numpy as np
 
@@ -55,6 +55,34 @@ class VideoPlayer(QWidget):
         progress_layout.addWidget(self.time_end)
         
         layout.addLayout(progress_layout)
+        
+        # Timer for simulated progress
+        self.timer = QTimer(self)
+        self.timer.setInterval(1000) # 1 second tick
+        self.timer.timeout.connect(self.update_timer)
+        self.current_seconds = 0
+        
+    def update_timer(self):
+        self.current_seconds += 1
+        minutes = self.current_seconds // 60
+        seconds = self.current_seconds % 60
+        self.time_start.setText(f"{minutes}:{seconds:02d}")
+        
+        # Optionally update slider based on a fixed 10:06 length (606 seconds)
+        progress = (self.current_seconds / 606.0) * 100
+        self.slider.setValue(int(progress))
+        
+    def start_timer(self):
+        self.timer.start()
+        
+    def pause_timer(self):
+        self.timer.stop()
+        
+    def reset_timer(self):
+        self.timer.stop()
+        self.current_seconds = 0
+        self.time_start.setText("0:00")
+        self.slider.setValue(0)
         
     @Slot(np.ndarray)
     def update_frame(self, frame):

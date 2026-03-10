@@ -6,7 +6,7 @@ import os
 class TopHeader(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setFixedHeight(80)
+        self.setFixedHeight(100) # Increased height for scaling
         self.setStyleSheet("background-color: transparent;") # Remove grey background
 
         layout = QHBoxLayout(self)
@@ -25,19 +25,19 @@ class TopHeader(QWidget):
         self.logo_label.setObjectName("HeaderLogo")
         self.logo_label.setAlignment(Qt.AlignmentFlag.AlignCenter) # Ensure label content is centered
         
-        # Correctly resolve the absolute path to the root emova/assets/images directory
-        # __file__ is at emova/src/emova/gui/components/header.py
+        # Correctly resolve the absolute path to the client/gui/assets/images directory
+        # __file__ is at emova/src/emova/client/gui/components/header.py
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        emova_root = os.path.abspath(os.path.join(current_dir, "..", "..", "..", ".."))
-        logo_path = os.path.join(emova_root, "assets", "images", "emova-logo.png")
+        gui_root = os.path.abspath(os.path.join(current_dir, ".."))
+        logo_path = os.path.join(gui_root, "assets", "images", "emova-logo.png")
              
         if os.path.exists(logo_path):
             pixmap = QPixmap(logo_path)
-            # Scale the logo to fit nicely in the header (e.g., 60px height)
-            self.logo_label.setPixmap(pixmap.scaledToHeight(60, Qt.TransformationMode.SmoothTransformation))
+            # Scale the logo to fit nicely in the new enlarged header (80px height)
+            self.logo_label.setPixmap(pixmap.scaledToHeight(80, Qt.TransformationMode.SmoothTransformation))
         else:
             self.logo_label.setText(f"EMOVA (Missing: {logo_path})")
-            
+
         layout.addWidget(self.logo_label, alignment=Qt.AlignmentFlag.AlignCenter)
         
         layout.addStretch() # Spacer after logo
@@ -46,7 +46,7 @@ class TopHeader(QWidget):
         layout.addStretch()
         
         # User Button
-        self.user_button = QPushButton("👤") # Placeholder icon
+        self.user_button = QPushButton("👤 Mi Cuenta") # Added descriptive text
         self.user_button.setObjectName("UserButton")
         self.user_button.setCursor(Qt.CursorShape.PointingHandCursor)
         

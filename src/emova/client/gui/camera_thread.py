@@ -1,9 +1,9 @@
 import cv2
 import numpy as np
 from PySide6.QtCore import QThread, Signal
-from emova.capture.camera import open_camera, read_frame
-from emova.capture.fps_sampler import FPSSampler
-from emova.model.emotion_predictor import predict_emotion
+from emova.core.capture.camera import open_camera, read_frame
+from emova.core.capture.fps_sampler import FPSSampler
+from emova.core.model.emotion_predictor import predict_emotion
 
 class CameraThread(QThread):
     # Signals to emit frames and prediction data back to the main UI thread

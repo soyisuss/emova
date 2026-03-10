@@ -11,7 +11,8 @@ dependencies = [
     "onnxruntime",
     "pyside6",
     "matplotlib",
-    "pandas"
+    "pandas",
+    "reportlab"
 ]
 
 [project.optional-dependencies]
