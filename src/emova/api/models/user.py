@@ -9,7 +9,7 @@ import re
 from typing import Optional
 from emova.api.models.types import PyObjectId
 
-PASSWORD_REGEX = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+PASSWORD_REGEX = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$"
 
 class UserBase(BaseModel):
     """Intrinsic attributes of a user."""
@@ -17,9 +17,9 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     """Data required to register a new User. Contains the unhashed password."""
-    passwordHash: str = Field(..., description="Minimum 8 characters, 1 Uppercase, 1 Lowercase, 1 number, and 1 special character")
+    password: str = Field(..., description="Minimum 8 characters, 1 Uppercase, 1 Lowercase, 1 number, and 1 special character")
 
-    @field_validator("passwordHash")
+    @field_validator("password")
     @classmethod
     def validate_password_strength(cls, v: str) -> str:
         """Applies business rule RB9 for password strength upon registration."""

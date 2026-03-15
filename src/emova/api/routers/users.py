@@ -38,7 +38,7 @@ async def create_user(
 
     user_in_db = UserInDB(
         email=user.email,
-        passwordHash=get_password_hash(user.passwordHash)
+        passwordHash=get_password_hash(user.password)
     )
 
     new_doc = user_in_db.model_dump(by_alias=True, exclude_none=True)
