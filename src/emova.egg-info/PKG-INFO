@@ -2,23 +2,81 @@ Metadata-Version: 2.4
 Name: emova
 Version: 0.1.0
 Summary: Emotion Monitoring and Visual Analysis system
-Requires-Python: <3.13,>=3.10
+Requires-Python: >=3.10
 Description-Content-Type: text/markdown
-Requires-Dist: opencv-python
-Requires-Dist: numpy
-Requires-Dist: onnxruntime
-Requires-Dist: pyside6
+Requires-Dist: email-validator>=2.1.1
+Requires-Dist: fastapi[standard]>=0.135.1
+Requires-Dist: google-cloud-storage>=3.9.0
 Requires-Dist: matplotlib
+Requires-Dist: motor>=3.7.1
+Requires-Dist: numpy
+Requires-Dist: onnxruntime-gpu>=1.24.3
+Requires-Dist: opencv-python>=4.13.0.92
 Requires-Dist: pandas
+Requires-Dist: passlib[argon2]>=1.7.4
+Requires-Dist: pydantic>=2.7.1
+Requires-Dist: pydantic-settings>=2.13.1
+Requires-Dist: pymongo>=4.16.0
+Requires-Dist: pyside6>=6.10.2
+Requires-Dist: python-dotenv>=1.2.2
+Requires-Dist: python-jose[cryptography]>=3.5.0
+Requires-Dist: python-multipart>=0.0.22
+Requires-Dist: reportlab>=4.4.10
+Requires-Dist: uvicorn[standard]>=0.41.0
 Provides-Extra: dev
 Requires-Dist: pytest; extra == "dev"
 Requires-Dist: black; extra == "dev"
 Requires-Dist: ruff; extra == "dev"
 
-# EMOVA
+# EMOVA: Sistema de Apoyo al Análisis Emocional en Pruebas de Usabilidad
 
-## ¿Qué es?
-Es una herramienta que busca apoyar el proceso de pruebas de usabilidad, usando tecnicas de reconocimiento facial para intentar predecir las emociones del usuario y relacionarlas con el grado de satisfaccion del usuario.
+**EMOVA** es una solución de software diseñada para optimizar la evaluación de interfaces digitales mediante el reconocimiento automático de expresiones faciales. El sistema permite capturar y analizar las reacciones emocionales espontáneas de los usuarios durante la interacción con sitios web, complementando las técnicas tradicionales de usabilidad como encuestas y entrevistas.
 
-## ¿Cómo lo vamos a hacer?
-Vamos a usar principalmente python, usando desde librerias para la interfaz, como para consumir apis, conectarnos a una base de datos y entrenar una red neuronal convolucional.
+## 🚀 Características Principales
+* **Reconocimiento Facial (FER):** Identificación y clasificación de tres estados emocionales: **Contento, Descontento y Neutral**.
+* **Análisis No Intrusivo:** Permite a los usuarios interactuar con la interfaz de forma natural mientras el sistema registra signos de frustración, placer o sorpresa.
+* **Integración de Métricas:** Relaciona las emociones detectadas con tareas específicas y tiempos de ejecución.
+* **Reportes Profesionales:** Generación de reportes en formato **PDF** para evaluadores y exportación de datos crudos en **CSV** para análisis estadístico.
+
+## 🛠️ Stack Tecnológico
+* **Lenguaje:** Python (Ecosistema robusto para IA y visión por computadora).
+* **Interfaz Gráfica:** PySide6 (Qt for Python) para una GUI nativa y modular.
+* **Inteligencia Artificial:** * **Arquitectura:** ResNet-50 (Seleccionada por su equilibrio entre precisión y latencia).
+  * **Inferencia:** ONNX Runtime para una ejecución eficiente en CPU/GPU.
+* **Persistencia:** * **MongoDB:** Gestión de metadatos de sesiones y reportes.
+  * **Google Cloud Storage (GCS):** Almacenamiento escalable de reportes en la nube.
+
+## 🏗️ Arquitectura
+El sistema implementa una **Metodología en Espiral** y una arquitectura modular por capas para asegurar la mantenibilidad y escalabilidad del código.
+
+
+
+1. **Capa Local:** Gestiona la captura de video (OpenCV), el preprocesamiento de fotogramas y la inferencia del modelo.
+2. **Capa Remota:** Se encarga de la persistencia de datos y el acceso a reportes históricos mediante enlaces firmados.
+
+## 📋 Instalación y Uso (con `uv`)
+Este proyecto utiliza `uv` para una gestión de dependencias rápida y determinista.
+
+1. **Clonar el repositorio:**
+   ```bash
+   git clone [https://github.com/tu-usuario/emova.git](https://github.com/tu-usuario/emova.git)
+   cd emova
+   ```
+
+2. Sincronizar el entorno e instalar dependencias:
+   ```bash
+   uv sync
+   ```
+
+3. Ejecutar la aplicación:
+   ```bash
+   uv run src/emova/main.py
+   ```
+
+## 🎯 **Criterios de Éxito y Calidad**
+- **Precisión**: El sistema debe alcanzar al menos un 80% - 85% de exactitud en la detección de emociones.
+- **Rendimiento**: Análisis constante de 3 fotogramas por segundo (FPS).
+- **Seguridad**: Confidencialidad de datos y almacenamiento de contraseñas mediante hashing (no texto plano).
+
+**Desarrollado por**: Caballero Chávez Yael Jesús & Domínguez Rendón Melissa.
+**Institución**: Instituto Politécnico Nacional - Escuela Superior de Cómputo (ESCOM).

@@ -8,6 +8,7 @@
 # IA Models (Large binaries)
 models/*.pth
 models/*.onnx
+models/*.onnx.data
 models/*.weights
 
 # Datasets
@@ -45,8 +46,6 @@ var/
 build/
 dist/
 
-# ... (lo que ya tenías)
-
 # OS-specific files (Important for Windows 11 targets) 
 Thumbs.db
 desktop.ini
@@ -60,3 +59,8 @@ $RECYCLE.BIN/
 
 # Antigravity (Add your specific tool's config here)
 .antigravity/
+
+# Credenciales
+.env
+.env.*
+*.env
