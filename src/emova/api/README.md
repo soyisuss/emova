@@ -1,6 +1,6 @@
 # EMOVA API
 
-Esta es la API del backend para el sistema de **Emotion Monitoring and Visual Analysis (EMOVA)**. Está construida utilizando Python y FastAPI, diseñada para ser robusta, rápida y orientada a microservicios o contenedores.
+Esta es la API del backend para el sistema de **EMOVA**. Está construida utilizando Python y FastAPI, diseñada para ser robusta, rápida y orientada a microservicios o contenedores.
 
 La API se encarga de gestionar de forma segura los usuarios del sistema (Evaluadores), la autenticación mediante tokens JWT y el registro/lectura de reportes generados.
 
