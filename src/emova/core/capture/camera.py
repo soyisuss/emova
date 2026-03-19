@@ -1,11 +1,14 @@
 import cv2
 
-def open_camera(index=0):
-
-    cap = cv2.VideoCapture(index, cv2.CAP_DSHOW)
+def open_source(source=0):
+    """Abre la cámara web o un archivo de video."""
+    if isinstance(source, int):
+        cap = cv2.VideoCapture(source, cv2.CAP_DSHOW)
+    else:
+        cap = cv2.VideoCapture(source)
 
     if not cap.isOpened():
-        raise Exception("No se pudo abrir la cámara")
+        raise Exception(f"No se pudo abrir la fuente de video: {source}")
 
     return cap
 

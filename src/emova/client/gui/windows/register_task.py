@@ -95,42 +95,39 @@ class RegisterTaskView(QWidget):
         
         lbl_task_num = QLabel(f"Tarea {task_number}")
         lbl_task_num.setProperty("class", "TaskNumberLabel")
-        # Give the label an object name so we can find it later for renumbering
         lbl_task_num.setObjectName("TaskNumberLabel")
         
-        btn_edit = QPushButton("Guardar")
-        btn_edit.setProperty("class", "EditButton")
-        btn_edit.setCursor(Qt.CursorShape.PointingHandCursor)
-        btn_edit.setFixedWidth(100)
-        btn_edit.setStyleSheet("color: #7E38B7;")
-        
-        btn_delete = QPushButton("Eliminar")
-        btn_delete.setProperty("class", "WarningButton")
+        btn_delete = QPushButton("✖ Eliminar")
         btn_delete.setCursor(Qt.CursorShape.PointingHandCursor)
-        btn_delete.setFixedWidth(100)
-        # Connect delete button to remove this specific task_widget
+        btn_delete.setStyleSheet("""
+            QPushButton {
+                color: #E74C3C;
+                background-color: transparent;
+                font-weight: bold;
+                font-size: 15px;
+                border: none;
+                padding: 5px;
+            }
+            QPushButton:hover {
+                color: #C0392B;
+            }
+        """)
         btn_delete.clicked.connect(lambda _, w=task_widget: self.remove_task_block(w))
         
         task_header_layout.addWidget(lbl_task_num)
-        task_header_layout.addStretch() # Push buttons to the right
-        task_header_layout.addWidget(btn_edit)
+        task_header_layout.addStretch()
         task_header_layout.addWidget(btn_delete)
         
         lbl_title = QLabel("Titulo de Tarea:")
         input_title = QLineEdit()
-        # Default editable state
         input_title.setReadOnly(False)
         input_title.setStyleSheet("background-color: white; color: black; border: 2px solid #7E38B7;")
         
         lbl_desc = QLabel("Descripción:")
         input_desc = QTextEdit()
-        input_desc.setFixedHeight(150)
-        # Default editable state
+        input_desc.setFixedHeight(120)
         input_desc.setReadOnly(False)
         input_desc.setStyleSheet("background-color: white; color: black; border: 2px solid #7E38B7;")
-        
-        # Connect Edit button toggle logic
-        btn_edit.clicked.connect(lambda _, ti=input_title, td=input_desc, btn=btn_edit: self.toggle_edit_mode(btn, ti, td))
         
         layout.addLayout(task_header_layout)
         layout.addWidget(lbl_title)
@@ -192,13 +189,13 @@ class RegisterTaskView(QWidget):
                     label.setText(f"Tarea {i + 1}")
                 
                 # Find the delete button
-                delete_btn = widget.findChild(QPushButton)
-                if delete_btn and delete_btn.text() == "Eliminar":
-                    # If this is the only task remaining (count is 1), hide its delete button
-                    if self.tasks_layout.count() == 1:
-                        delete_btn.hide()
-                    else:
-                        delete_btn.show()
+                for btn in widget.findChildren(QPushButton):
+                    if btn.text() == "✖ Eliminar":
+                        if self.tasks_layout.count() == 1:
+                            btn.hide()
+                        else:
+                            btn.show()
+                        break
 
     def save_tasks(self):
         # Clear existing tasks to avoid appending duplicates from rapid clicking

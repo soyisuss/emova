@@ -105,24 +105,23 @@ class DashboardView(QWidget):
         btn_new_test.clicked.connect(self.show_privacy_notice)
         
         # Central Video + Overlay Stack
-        central_video_container = QWidget()
-        central_video_layout = QGridLayout(central_video_container)
+        self.central_video_container = QWidget()
+        central_video_layout = QGridLayout(self.central_video_container)
         central_video_layout.setContentsMargins(0, 0, 0, 0)
         
         # Video Player
         self.video_player = VideoPlayer()
         
-        # Task Overlay
-        self.task_overlay = TaskOverlay()
+        # Task Overlay (Flotante)
+        self.task_overlay = TaskOverlay(self.central_video_container)
         self.task_overlay.hide() # Hidden by default
         self.task_overlay.task_completed.connect(self.handle_task_completed)
         self.task_overlay.task_cancelled.connect(self.handle_task_cancelled)
         self.current_task_index = 0
         self.current_task_start_time = 0
         
-        # Stack them together using the exact same coordinates and stretch parameters
+        # Agregar SOLO el video player al grid layout
         central_video_layout.addWidget(self.video_player, 0, 0)
-        central_video_layout.addWidget(self.task_overlay, 0, 0, alignment=Qt.AlignmentFlag.AlignCenter)
         
         # Absolute path to assets/images
         current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -152,7 +151,7 @@ class DashboardView(QWidget):
         
         # Assembly left side
         left_layout.addLayout(top_actions_layout)
-        left_layout.addWidget(central_video_container, stretch=1)
+        left_layout.addWidget(self.central_video_container, stretch=1)
         left_layout.addLayout(bottom_actions_layout)
         
         # Right Sidebar
@@ -166,12 +165,21 @@ class DashboardView(QWidget):
         self.camera_thread = CameraThread()
         self.camera_thread.frame_ready.connect(self.video_player.update_frame)
         self.camera_thread.emotion_ready.connect(self.handle_emotion)
+        
+        # Asegurar que el recuadro flotante siempre esté visualmente por encima del video
+        self.task_overlay.raise_()
 
     def show_privacy_notice(self):
         dialog = PrivacyNoticeDialog(self)
         dialog.exec()
         
     def start_camera(self):
+        tasks = session_manager.tasks
+        if not tasks:
+            from PySide6.QtWidgets import QMessageBox
+            QMessageBox.warning(self, "Atención", "Aún no se han agregado tareas. Por favor agregue tareas antes de iniciar el análisis.")
+            return
+
         self.btn_start_analysis.setEnabled(False)
         self.btn_stop_analysis.setEnabled(True)
         self.camera_thread.start()
@@ -179,10 +187,8 @@ class DashboardView(QWidget):
         self.video_player.reset_timer()
         self.video_player.start_timer()
         
-        tasks = session_manager.tasks
-        if tasks:
-            self.current_task_index = 0
-            self.show_current_task()
+        self.current_task_index = 0
+        self.show_current_task()
             
     def show_current_task(self):
         tasks = session_manager.tasks
@@ -190,6 +196,14 @@ class DashboardView(QWidget):
             t = tasks[self.current_task_index]
             self.task_overlay.load_task(self.current_task_index + 1, t.get("title", ""), t.get("description", ""))
             self.task_overlay.show()
+            self.task_overlay.raise_()
+            
+            # Centrar el widget flotante manualmente relativo a su contenedor padre
+            parent_rect = self.central_video_container.rect()
+            x = (parent_rect.width() - self.task_overlay.width()) // 2
+            y = (parent_rect.height() - self.task_overlay.height()) // 2
+            self.task_overlay.move(max(0, x), max(0, y))
+            
             self.current_task_start_time = time.time() # Begin tracking time for this task
         else:
             self.task_overlay.hide()
@@ -217,6 +231,7 @@ class DashboardView(QWidget):
         
         self.video_player.pause_timer()
         self.task_overlay.hide()
+        self.video_player.show_stopped_message()
         
     @Slot(str, float)
     def handle_emotion(self, emotion, confidence):

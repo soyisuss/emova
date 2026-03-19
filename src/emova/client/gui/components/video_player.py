@@ -84,9 +84,30 @@ class VideoPlayer(QWidget):
         self.time_start.setText("0:00")
         self.slider.setValue(0)
         
+        self.is_stopped = False
+        # Reset placeholder text
+        self.placeholder_text.setStyleSheet("color: white; font-size: 18px; background-color: transparent;")
+        self.placeholder_text.setText("Iniciando cámara...")
+        self.video_frame.hide()
+        self.placeholder_text.show()
+
+    def show_stopped_message(self):
+        """Displays a stopped message when the camera stream is aborted."""
+        self.is_stopped = True
+        self.video_frame.clear()
+        self.video_frame.hide()
+        
+        # Display large white block spanning the layout
+        self.placeholder_text.setStyleSheet("background-color: white; color: black; font-size: 24px; border-radius: 4px;")
+        self.placeholder_text.setText("Análisis detenido")
+        self.placeholder_text.show()
+        
     @Slot(np.ndarray)
     def update_frame(self, frame):
         """Update the displayed image with a new OpenCV frame"""
+        if getattr(self, 'is_stopped', False):
+            return
+            
         if self.placeholder_text.isVisible():
             self.placeholder_text.hide()
             self.video_frame.show()
