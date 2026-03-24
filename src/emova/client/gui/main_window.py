@@ -6,6 +6,8 @@ from emova.client.gui.windows.password_recovery import PasswordRecoveryView
 from emova.client.gui.windows.register_task import RegisterTaskView
 from emova.client.gui.windows.edit_tasks import EditTaskView
 from emova.client.gui.windows.register_participant import RegisterParticipantView
+from emova.client.gui.windows.login import LoginView
+from emova.client.gui.windows.register_user import RegisterUserView
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -36,6 +38,8 @@ class MainWindow(QMainWindow):
         self.view_register_task = RegisterTaskView()
         self.view_edit_task = EditTaskView()
         self.view_register_participant = RegisterParticipantView()
+        self.view_login = LoginView()
+        self.view_register_user = RegisterUserView()
         
         # Add views to stack
         self.stack.addWidget(self.view_dashboard)             # Index 0
@@ -44,19 +48,35 @@ class MainWindow(QMainWindow):
         self.stack.addWidget(self.view_register_task)         # Index 3
         self.stack.addWidget(self.view_edit_task)             # Index 4
         self.stack.addWidget(self.view_register_participant)  # Index 5
+        self.stack.addWidget(self.view_login)                 # Index 6
+        self.stack.addWidget(self.view_register_user)         # Index 7
         
         # Connections
         self.setup_connections()
         
     def setup_connections(self):
         # Header routing
-        self.header.action_login.triggered.connect(lambda: self.switch_view(1))    # To Change Pwd
-        self.header.action_register.triggered.connect(lambda: self.switch_view(2)) # To Recovery Pwd
+        self.header.btn_login.clicked.connect(lambda: self.switch_view(6))      # To Login
+        self.header.btn_register.clicked.connect(lambda: self.switch_view(7))   # To Register User
         self.header.logo_label.mousePressEvent = lambda event: self.switch_view(0) # Click logo to go home
         
         # View internal routing
+        # Change Password View
         self.view_pwd_change.go_back.connect(lambda: self.switch_view(0))
-        self.view_pwd_recovery.go_back.connect(lambda: self.switch_view(0))
+        
+        # Password Recovery View
+        self.view_pwd_recovery.go_back.connect(lambda: self.switch_view(6)) # Go back to Login (index 6) from Recovery
+        
+        # Login View Routing
+        self.view_login.go_back.connect(lambda: self.switch_view(0))
+        self.view_login.go_to_register.connect(lambda: self.switch_view(7))
+        self.view_login.go_to_recovery.connect(lambda: self.switch_view(2)) # To Recovery Pwd
+        self.view_login.login_success.connect(lambda: self.switch_view(0))
+        
+        # Register User View Routing
+        self.view_register_user.go_back.connect(lambda: self.switch_view(0))
+        self.view_register_user.go_to_login.connect(lambda: self.switch_view(6))
+        self.view_register_user.register_success.connect(lambda: self.switch_view(6)) # Go to login after register? or dashboard. Let's go to login.
         
         # New Registration Views Routing
         self.view_dashboard.go_to_add_tasks.connect(lambda: self.switch_view(3))

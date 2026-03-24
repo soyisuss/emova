@@ -2,8 +2,10 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QL
 from PySide6.QtCore import Qt, Signal, QSize
 from PySide6.QtGui import QIcon
 
-class PasswordRecoveryView(QWidget):
+class RegisterUserView(QWidget):
     go_back = Signal()
+    go_to_login = Signal()
+    register_success = Signal()
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -27,51 +29,40 @@ class PasswordRecoveryView(QWidget):
         center_layout = QVBoxLayout()
         center_layout.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)
         center_widget = QWidget()
-        center_widget.setMaximumWidth(550)
+        center_widget.setMaximumWidth(500)
         cf_layout = QVBoxLayout(center_widget)
         cf_layout.setSpacing(5)
         
         # Title
-        title = QLabel("Recuperación de contraseña")
+        title = QLabel("Crear Cuenta")
         title.setProperty("class", "FormTitle")
+        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title.setFixedHeight(50)
-        # According to standard alignment context, form title rests on the top-left of the center form
         cf_layout.addWidget(title)
         
         cf_layout.addSpacing(20)
         
-        # Instructions
-        info_text = QLabel(
-            "ⓘ Se ha enviado un código de verificación a tu correo\n"
-            "\"correo@gmail.com\" ingresalo para recuperar tu contraseña."
-        )
-        info_text.setStyleSheet("font-size: 16px; color: #333333;")
-        info_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        cf_layout.addWidget(info_text)
-        cf_layout.addSpacing(20)
+        # Email Input
+        lbl_email = QLabel("Correo electrónico*:")
+        lbl_email.setProperty("class", "FormLabel")
+        cf_layout.addWidget(lbl_email)
         
-        # Inputs
-        # Input Code
-        lbl_code = QLabel("Código de verificación*:")
-        lbl_code.setProperty("class", "FormLabel")
-        cf_layout.addWidget(lbl_code)
-        
-        input_code = QLineEdit()
-        input_code.setFixedHeight(35)
-        cf_layout.addWidget(input_code)
+        input_email = QLineEdit()
+        input_email.setFixedHeight(35)
+        cf_layout.addWidget(input_email)
         
         cf_layout.addSpacing(5)
         
-        # New password
-        lbl_new = QLabel("Nueva contraseña:")
-        lbl_new.setProperty("class", "FormLabel")
-        cf_layout.addWidget(lbl_new)
+        # Password Input
+        lbl_password = QLabel("Contraseña*:")
+        lbl_password.setProperty("class", "FormLabel")
+        cf_layout.addWidget(lbl_password)
         
         pwd_layout = QHBoxLayout()
         pwd_layout.setSpacing(5)
-        self.input_new = QLineEdit()
-        self.input_new.setFixedHeight(35)
-        self.input_new.setEchoMode(QLineEdit.EchoMode.Password)
+        self.input_password = QLineEdit()
+        self.input_password.setFixedHeight(35)
+        self.input_password.setEchoMode(QLineEdit.EchoMode.Password)
         
         btn_eye = QPushButton()
         btn_eye.setIcon(QIcon("src/emova/client/gui/assets/images/eye.svg"))
@@ -81,18 +72,19 @@ class PasswordRecoveryView(QWidget):
         btn_eye.setStyleSheet("background-color: transparent; border: none;")
         
         def toggle_pwd():
-            if self.input_new.echoMode() == QLineEdit.EchoMode.Password:
-                self.input_new.setEchoMode(QLineEdit.EchoMode.Normal)
+            if self.input_password.echoMode() == QLineEdit.EchoMode.Password:
+                self.input_password.setEchoMode(QLineEdit.EchoMode.Normal)
                 btn_eye.setIcon(QIcon("src/emova/client/gui/assets/images/eye_off.svg"))
             else:
-                self.input_new.setEchoMode(QLineEdit.EchoMode.Password)
+                self.input_password.setEchoMode(QLineEdit.EchoMode.Password)
                 btn_eye.setIcon(QIcon("src/emova/client/gui/assets/images/eye.svg"))
                 
         btn_eye.clicked.connect(toggle_pwd)
         
-        pwd_layout.addWidget(self.input_new)
+        pwd_layout.addWidget(self.input_password)
         pwd_layout.addWidget(btn_eye)
         cf_layout.addLayout(pwd_layout)
+        
         cf_layout.addSpacing(5)
         
         # Password rules
@@ -106,7 +98,7 @@ class PasswordRecoveryView(QWidget):
         cf_layout.addSpacing(10)
         
         # Confirm password
-        lbl_confirm = QLabel("Confirmar contraseña:")
+        lbl_confirm = QLabel("Confirmar contraseña*:")
         lbl_confirm.setProperty("class", "FormLabel")
         cf_layout.addWidget(lbl_confirm)
         
@@ -136,43 +128,67 @@ class PasswordRecoveryView(QWidget):
         confirm_layout.addWidget(self.input_confirm)
         confirm_layout.addWidget(btn_eye_confirm)
         cf_layout.addLayout(confirm_layout)
+        
         cf_layout.addSpacing(5)
-
         
         # Error message mapping
         self.lbl_error = QLabel("La contraseña no coincide")
-        self.lbl_error.setStyleSheet("color: #8C1C13; font-size: 14px; font-weight: bold;")
-        self.lbl_error.hide()
+        self.lbl_error.setStyleSheet("color: #8C1C13; font-size: 14px; font-weight: bold;") 
+        self.lbl_error.hide() # Hidden by default
         cf_layout.addWidget(self.lbl_error)
         
         def validate_passwords():
-            p1 = self.input_new.text()
+            p1 = self.input_password.text()
             p2 = self.input_confirm.text()
             if p1 and p2 and p1 != p2:
                 self.lbl_error.show()
             else:
                 self.lbl_error.hide()
                 
-        self.input_new.textChanged.connect(validate_passwords)
+        self.input_password.textChanged.connect(validate_passwords)
         self.input_confirm.textChanged.connect(validate_passwords)
         
-        cf_layout.addSpacing(30)
+        # Obligatorio Text
+        obligatorio = QLabel("*Campos obligatorios")
+        obligatorio.setStyleSheet("font-size: 12px; font-weight: bold; color: black;")
+        cf_layout.addWidget(obligatorio)
         
-        cf_layout.addSpacing(15)
+        cf_layout.addSpacing(10)
         
         # Submit Button
-        btn_submit = QPushButton("Cambiar")
+        btn_submit = QPushButton("Registrarse")
         btn_submit.setProperty("class", "DialogButton") # Reusing similar styling
         btn_submit.setCursor(Qt.CursorShape.PointingHandCursor)
         btn_submit.setFixedHeight(35)
         btn_submit.setMinimumWidth(200)
         self.btn_submit = btn_submit
         
+        btn_submit.clicked.connect(self.register_success.emit)
+        
         btn_wrapper = QHBoxLayout()
         btn_wrapper.addStretch()
         btn_wrapper.addWidget(btn_submit)
         btn_wrapper.addStretch()
         cf_layout.addLayout(btn_wrapper)
+        
+        cf_layout.addSpacing(30)
+        
+        # Footer section (Already have an account?)
+        lbl_has_account = QLabel("¿Ya tienes cuenta?")
+        lbl_has_account.setStyleSheet("font-size: 18px; font-weight: bold; color: black;")
+        lbl_has_account.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        cf_layout.addWidget(lbl_has_account)
+        
+        btn_login = QPushButton("Iniciar sesión")
+        btn_login.setStyleSheet("border: none; background: transparent; color: #7b2cbf; font-size: 16px; font-weight: bold;")
+        btn_login.setCursor(Qt.CursorShape.PointingHandCursor)
+        btn_login.clicked.connect(self.go_to_login.emit)
+        
+        login_wrapper = QHBoxLayout()
+        login_wrapper.addStretch()
+        login_wrapper.addWidget(btn_login)
+        login_wrapper.addStretch()
+        cf_layout.addLayout(login_wrapper)
         
         center_layout.addWidget(center_widget)
         layout.addLayout(center_layout)

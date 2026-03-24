@@ -49,31 +49,82 @@ class TopHeader(QWidget):
         self.user_button = QPushButton("👤 Mi Cuenta") # Added descriptive text
         self.user_button.setObjectName("UserButton")
         self.user_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.user_button.setStyleSheet("""
+            QPushButton {
+                background: transparent;
+                border: none;
+                font-size: 16px;
+                font-weight: bold;
+            }
+        """)
         
         # Setup dropdown menu
         self.user_menu = QMenu(self)
+        self.user_menu.setContentsMargins(0, 0, 0, 0)
         
-        self.action_login = QAction("Iniciar sesión", self)
-        self.action_register = QAction("Registrarse", self)
+        # Custom widget for the menu
+        from PySide6.QtWidgets import QWidgetAction, QVBoxLayout
         
-        self.user_menu.addAction(self.action_login)
-        self.user_menu.addAction(self.action_register)
-        
-        self.user_button.setMenu(self.user_menu)
-        
-        # We need to style the menu here or in QSS
-        self.user_menu.setStyleSheet("""
-            QMenu {
+        menu_widget = QWidget()
+        menu_widget.setStyleSheet("""
+            QWidget {
                 background-color: white;
-                border: 1px solid #D0D0D0;
+                border: 1px solid #C0C0C0;
+                border-radius: 4px;
             }
-            QMenu::item {
-                padding: 8px 24px 8px 24px;
-            }
-            QMenu::item:selected {
-                background-color: #7E38B7;
-                color: white;
+            QLabel {
+                border: none;
             }
         """)
+        menu_layout = QVBoxLayout(menu_widget)
+        menu_layout.setContentsMargins(15, 15, 15, 15)
+        menu_layout.setSpacing(10)
+        
+        lbl_title = QLabel("Escoge una opción para entrar:")
+        lbl_title.setStyleSheet("font-size: 12px; font-weight: bold; color: black;")
+        lbl_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        menu_layout.addWidget(lbl_title)
+        
+        # Buttons with dark gray style according to mockup
+        btn_style = """
+            QPushButton {
+                background-color: #606060;
+                color: white;
+                border: none;
+                border-radius: 12px;
+                padding: 6px 12px;
+                font-size: 11px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #404040;
+            }
+        """
+        
+        self.btn_login = QPushButton("Iniciar sesión")
+        self.btn_login.setStyleSheet(btn_style)
+        self.btn_login.setCursor(Qt.CursorShape.PointingHandCursor)
+        
+        self.btn_register = QPushButton("Registrarse")
+        self.btn_register.setStyleSheet(btn_style)
+        self.btn_register.setCursor(Qt.CursorShape.PointingHandCursor)
+        
+        # To avoid the menu closing when clicking inside the widget unless a button is clicked,
+        # we connect the buttons to emit a custom signal or close the menu and emit signal.
+        # But we'll just connect them to properties on header that MainWindow can listen to.
+        # Or even better, emit signals from the header.
+        
+        menu_layout.addWidget(self.btn_login)
+        menu_layout.addWidget(self.btn_register)
+        
+        widget_action = QWidgetAction(self)
+        widget_action.setDefaultWidget(menu_widget)
+        
+        self.user_menu.addAction(widget_action)
+        self.user_button.setMenu(self.user_menu)
+        
+        # Close menu when button clicked
+        self.btn_login.clicked.connect(self.user_menu.hide)
+        self.btn_register.clicked.connect(self.user_menu.hide)
 
         layout.addWidget(self.user_button)

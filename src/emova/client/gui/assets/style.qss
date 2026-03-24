@@ -155,7 +155,7 @@ QPushButton.DialogButton {
     background-color: #7E38B7;
     color: white;
     border-radius: 8px;
-    padding: 12px 35px;
+    padding: 8px 25px;
     font-size: 16px;
     font-weight: bold;
     border: none;
@@ -169,7 +169,7 @@ QPushButton.DialogButton:hover {
 QLineEdit {
     border: 2px solid #333333;
     border-radius: 8px;
-    padding: 12px;
+    padding: 8px 12px;
     font-size: 18px;
     background-color: white;
     color: #333333;
@@ -182,7 +182,7 @@ QLineEdit:focus {
 QTextEdit {
     border: 2px solid #333333;
     border-radius: 8px;
-    padding: 12px;
+    padding: 8px 12px;
     font-size: 18px;
     background-color: white;
     color: #333333;
@@ -196,14 +196,12 @@ QLabel.FormLabel {
     font-size: 18px;
     font-weight: bold;
     color: #000000;
-    margin-bottom: 5px;
 }
 
 QLabel.FormTitle {
     font-size: 32px;
     font-weight: bold;
     color: #4A4A4A;
-    margin-bottom: 20px;
 }
 
 QLabel.ViewTitle {
