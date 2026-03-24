@@ -27,7 +27,7 @@ async def create_report(
     if str(report.userId) != str(current_user.id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You cannot create a report for another user."
+            detail="No puedes crear un reporte a nombre de otro usuario."
         )
 
     new_report = ReportInDB(**report.model_dump())
@@ -58,11 +58,11 @@ async def read_report(
     try:
          obj_id = ObjectId(report_id)
     except Exception:
-         raise HTTPException(400, "Invalid ID format")
+         raise HTTPException(400, "El formato del identificador de reporte es inválido.")
          
     report = await db["reports"].find_one({"_id": obj_id})
     if not report or str(report.get("userId")) != str(current_user.id):
-        raise HTTPException(status_code=404, detail="The report does not exist or you do not have safeguarded access.")
+        raise HTTPException(status_code=404, detail="El reporte no existe o no tienes los permisos de acceso requeridos.")
     
     return ReportResponse(**report)
 
@@ -76,11 +76,11 @@ async def delete_report(
     try:
          obj_id = ObjectId(report_id)
     except Exception:
-         raise HTTPException(400, "Invalid ID format")
+         raise HTTPException(400, "El formato del identificador de reporte es inválido.")
          
     existing = await db["reports"].find_one({"_id": obj_id})
     if not existing or str(existing.get("userId")) != str(current_user.id):
-        raise HTTPException(status_code=404, detail="The report does not exist.")
+        raise HTTPException(status_code=404, detail="El reporte solicitado no existe en el sistema.")
         
     await db["reports"].delete_one({"_id": obj_id})
     return None

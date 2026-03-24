@@ -2,6 +2,8 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QL
 from PySide6.QtCore import Qt, Signal, QSize
 from PySide6.QtGui import QIcon
 
+from emova.client.api_client import ApiClient
+
 class LoginView(QWidget):
     go_back = Signal()
     go_to_register = Signal()
@@ -10,6 +12,9 @@ class LoginView(QWidget):
     
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.api_client = ApiClient.get_instance()
+        self.api_client.login_success.connect(self._on_login_res)
+        self.api_client.login_error.connect(self._on_login_err)
         
         layout = QVBoxLayout(self)
         layout.setContentsMargins(40, 20, 40, 20)
@@ -48,9 +53,9 @@ class LoginView(QWidget):
         lbl_email.setProperty("class", "FormLabel")
         cf_layout.addWidget(lbl_email)
         
-        input_email = QLineEdit()
-        input_email.setFixedHeight(35)
-        cf_layout.addWidget(input_email)
+        self.input_email = QLineEdit()
+        self.input_email.setFixedHeight(35)
+        cf_layout.addWidget(self.input_email)
         
         cf_layout.addSpacing(5)
         
@@ -61,9 +66,9 @@ class LoginView(QWidget):
         
         pwd_layout = QHBoxLayout()
         pwd_layout.setSpacing(5)
-        input_password = QLineEdit()
-        input_password.setFixedHeight(35)
-        input_password.setEchoMode(QLineEdit.EchoMode.Password)
+        self.input_password = QLineEdit()
+        self.input_password.setFixedHeight(35)
+        self.input_password.setEchoMode(QLineEdit.EchoMode.Password)
         
         btn_eye = QPushButton()
         btn_eye.setIcon(QIcon("src/emova/client/gui/assets/images/eye.svg"))
@@ -73,16 +78,16 @@ class LoginView(QWidget):
         btn_eye.setStyleSheet("background-color: transparent; border: none;")
         
         def toggle_pwd():
-            if input_password.echoMode() == QLineEdit.EchoMode.Password:
-                input_password.setEchoMode(QLineEdit.EchoMode.Normal)
+            if self.input_password.echoMode() == QLineEdit.EchoMode.Password:
+                self.input_password.setEchoMode(QLineEdit.EchoMode.Normal)
                 btn_eye.setIcon(QIcon("src/emova/client/gui/assets/images/eye_off.svg"))
             else:
-                input_password.setEchoMode(QLineEdit.EchoMode.Password)
+                self.input_password.setEchoMode(QLineEdit.EchoMode.Password)
                 btn_eye.setIcon(QIcon("src/emova/client/gui/assets/images/eye.svg"))
                 
         btn_eye.clicked.connect(toggle_pwd)
         
-        pwd_layout.addWidget(input_password)
+        pwd_layout.addWidget(self.input_password)
         pwd_layout.addWidget(btn_eye)
         cf_layout.addLayout(pwd_layout)
         
@@ -103,8 +108,26 @@ class LoginView(QWidget):
         btn_submit.setMinimumWidth(200)
         self.btn_submit = btn_submit
         
-        # For this prototype we will emit success unconditionally
-        btn_submit.clicked.connect(self.login_success.emit)
+        # Error Label
+        self.lbl_error = QLabel("")
+        self.lbl_error.setStyleSheet("color: #8C1C13; font-size: 14px; font-weight: bold;") 
+        self.lbl_error.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lbl_error.hide()
+        cf_layout.addWidget(self.lbl_error)
+        
+        def handle_login_click():
+            self.lbl_error.hide()
+            email = self.input_email.text()
+            pwd = self.input_password.text()
+            if not email or not pwd:
+                self.lbl_error.setText("Los campos no pueden estar vacíos")
+                self.lbl_error.show()
+                return
+            self.btn_submit.setEnabled(False)
+            self.btn_submit.setText("Cargando...")
+            self.api_client.login(email, pwd)
+            
+        btn_submit.clicked.connect(handle_login_click)
         
         btn_wrapper = QHBoxLayout()
         btn_wrapper.addStretch()
@@ -148,3 +171,16 @@ class LoginView(QWidget):
         center_layout.addWidget(center_widget)
         layout.addLayout(center_layout)
         layout.addStretch()
+
+    def _on_login_res(self, token: str):
+        self.btn_submit.setEnabled(True)
+        self.btn_submit.setText("Ingresar")
+        self.input_email.clear()
+        self.input_password.clear()
+        self.login_success.emit()
+        
+    def _on_login_err(self, err_msg: str):
+        self.btn_submit.setEnabled(True)
+        self.btn_submit.setText("Ingresar")
+        self.lbl_error.setText(f"Error: {err_msg}")
+        self.lbl_error.show()

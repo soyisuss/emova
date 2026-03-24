@@ -1,5 +1,7 @@
 from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QStackedWidget
 from emova.client.gui.components.header import TopHeader
+from emova.client.gui.components.custom_dialog import CustomDialog
+from emova.client.api_client import ApiClient
 from emova.client.gui.windows.dashboard import DashboardView
 from emova.client.gui.windows.password_change import PasswordChangeView
 from emova.client.gui.windows.password_recovery import PasswordRecoveryView
@@ -52,6 +54,7 @@ class MainWindow(QMainWindow):
         self.stack.addWidget(self.view_register_user)         # Index 7
         
         # Connections
+        self.api_client = ApiClient.get_instance()
         self.setup_connections()
         
     def setup_connections(self):
@@ -59,6 +62,8 @@ class MainWindow(QMainWindow):
         self.header.btn_login.clicked.connect(lambda: self.switch_view(6))      # To Login
         self.header.btn_register.clicked.connect(lambda: self.switch_view(7))   # To Register User
         self.header.logo_label.mousePressEvent = lambda event: self.switch_view(0) # Click logo to go home
+        self.header.go_to_password_change.connect(lambda: self.switch_view(1))  # Index 1 is Change Pwd
+        self.header.logout_requested.connect(self._handle_logout)
         
         # View internal routing
         # Change Password View
@@ -71,12 +76,12 @@ class MainWindow(QMainWindow):
         self.view_login.go_back.connect(lambda: self.switch_view(0))
         self.view_login.go_to_register.connect(lambda: self.switch_view(7))
         self.view_login.go_to_recovery.connect(lambda: self.switch_view(2)) # To Recovery Pwd
-        self.view_login.login_success.connect(lambda: self.switch_view(0))
+        self.api_client.profile_success.connect(self._on_profile_success)
         
         # Register User View Routing
         self.view_register_user.go_back.connect(lambda: self.switch_view(0))
         self.view_register_user.go_to_login.connect(lambda: self.switch_view(6))
-        self.view_register_user.register_success.connect(lambda: self.switch_view(6)) # Go to login after register? or dashboard. Let's go to login.
+        self.view_register_user.register_success.connect(self._on_register_success)
         
         # New Registration Views Routing
         self.view_dashboard.go_to_add_tasks.connect(lambda: self.switch_view(3))
@@ -96,3 +101,22 @@ class MainWindow(QMainWindow):
             self.view_edit_task.load_tasks_from_session()
             
         self.stack.setCurrentIndex(index)
+
+    def _on_profile_success(self, user_data: dict):
+        email = user_data.get("email", "Usuario")
+        self.header.set_auth_state(True, email)
+        self.switch_view(0)
+        dialog = CustomDialog(self, "Inicio de Sesión", f"¡Bienvenido! Has iniciado sesión como {email}.")
+        dialog.exec()
+        
+    def _on_register_success(self):
+        self.switch_view(6)
+        dialog = CustomDialog(self, "Registro Exitoso", "¡Tu cuenta ha sido creada exitosamente!\nPor favor, inicia sesión para continuar.")
+        dialog.exec()
+        
+    def _handle_logout(self):
+        self.api_client.set_token(None)
+        self.header.set_auth_state(False)
+        self.switch_view(0)
+        dialog = CustomDialog(self, "Sesión Cerrada", "Has cerrado tu sesión de forma segura.")
+        dialog.exec()

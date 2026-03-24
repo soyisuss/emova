@@ -25,8 +25,8 @@ class UserCreate(UserBase):
         """Applies business rule RB9 for password strength upon registration."""
         if not re.match(PASSWORD_REGEX, v):
             raise ValueError(
-                "The password must have at least 8 characters, 1 uppercase letter, "
-                "1 lowercase letter, 1 number, and 1 special character."
+                "La contraseña debe tener al menos 8 caracteres, 1 letra mayúscula, "
+                "1 minúscula, 1 número y 1 carácter especial."
             )
         return v
 
@@ -41,8 +41,8 @@ class UserUpdatePassword(BaseModel):
         """Applies business rule RB9 for security during voluntary reset."""
         if not re.match(PASSWORD_REGEX, v):
             raise ValueError(
-                "The new password must have at least 8 characters, 1 uppercase letter, "
-                "1 lowercase letter, 1 number, and 1 special character."
+                "La nueva contraseña debe tener al menos 8 caracteres, 1 letra mayúscula, "
+                "1 minúscula, 1 número y 1 carácter especial."
             )
         return v
 

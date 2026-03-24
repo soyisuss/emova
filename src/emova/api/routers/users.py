@@ -33,7 +33,7 @@ async def create_user(
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="The specified email is already registered."
+            detail="El correo electrónico especificado ya se encuentra registrado."
         )
 
     user_in_db = UserInDB(
@@ -70,7 +70,7 @@ async def update_current_user(
         if existing_user:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="The introduced email is already taken by another user."
+                detail="El correo electrónico introducido ya pertenece a otro usuario."
             )
 
     if update_data:
@@ -92,7 +92,7 @@ async def update_password(
     """Changes the password requiring confirmation of the old one (and validating RB9)."""
     if not verify_password(passwords.old_password, current_user.passwordHash):
         raise HTTPException(
-            status_code=400, detail="The current password provided is incorrect.")
+            status_code=400, detail="La contraseña actual que proporcionaste es incorrecta.")
 
     new_hashed = get_password_hash(passwords.new_password)
     await db["users"].update_one(

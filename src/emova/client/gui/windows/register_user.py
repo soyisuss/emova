@@ -2,6 +2,8 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QL
 from PySide6.QtCore import Qt, Signal, QSize
 from PySide6.QtGui import QIcon
 
+from emova.client.api_client import ApiClient
+
 class RegisterUserView(QWidget):
     go_back = Signal()
     go_to_login = Signal()
@@ -9,6 +11,9 @@ class RegisterUserView(QWidget):
     
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.api_client = ApiClient.get_instance()
+        self.api_client.register_success.connect(self._on_register_res)
+        self.api_client.register_error.connect(self._on_register_err)
         
         layout = QVBoxLayout(self)
         layout.setContentsMargins(40, 20, 40, 20)
@@ -47,9 +52,9 @@ class RegisterUserView(QWidget):
         lbl_email.setProperty("class", "FormLabel")
         cf_layout.addWidget(lbl_email)
         
-        input_email = QLineEdit()
-        input_email.setFixedHeight(35)
-        cf_layout.addWidget(input_email)
+        self.input_email = QLineEdit()
+        self.input_email.setFixedHeight(35)
+        cf_layout.addWidget(self.input_email)
         
         cf_layout.addSpacing(5)
         
@@ -87,15 +92,30 @@ class RegisterUserView(QWidget):
         
         cf_layout.addSpacing(5)
         
-        # Password rules
-        rules = QLabel(
-            "<span style='color: #2E7D32; font-size: 13px;'>Aa Mayúscula</span> &nbsp;•&nbsp; "
-            "<span style='color: #000000; font-size: 13px;'>8 caracteres mínimo</span> &nbsp;•&nbsp; "
-            "<span style='color: #000000; font-size: 13px;'>+*- caracteres especiales</span>"
-        )
-        rules.setWordWrap(True)
-        cf_layout.addWidget(rules)
+        import re
+        self.rules = QLabel()
+        self.rules.setWordWrap(True)
+        cf_layout.addWidget(self.rules)
         cf_layout.addSpacing(10)
+        
+        def update_rules_ui(pwd: str = ""):
+            has_upper = bool(re.search(r'[A-Z]', pwd))
+            has_len = len(pwd) >= 8
+            has_spec = bool(re.search(r'[\W_]', pwd))
+            
+            c_upper = "#2E7D32" if has_upper else "#000000"
+            c_len = "#2E7D32" if has_len else "#000000"
+            c_spec = "#2E7D32" if has_spec else "#000000"
+            
+            html = f'''
+            <span style="color: {c_upper}; font-size: 13px;">Aa Mayúscula</span> &nbsp;•&nbsp; 
+            <span style="color: {c_len}; font-size: 13px;">8 Mínimo</span> &nbsp;•&nbsp; 
+            <span style="color: {c_spec}; font-size: 13px;">+*- Especiales</span>
+            '''
+            self.rules.setText(html)
+            
+        update_rules_ui("")
+        self.input_password.textChanged.connect(update_rules_ui)
         
         # Confirm password
         lbl_confirm = QLabel("Confirmar contraseña*:")
@@ -133,7 +153,9 @@ class RegisterUserView(QWidget):
         
         # Error message mapping
         self.lbl_error = QLabel("La contraseña no coincide")
-        self.lbl_error.setStyleSheet("color: #8C1C13; font-size: 14px; font-weight: bold;") 
+        self.lbl_error.setStyleSheet("color: #8C1C13; font-size: 14px; font-weight: bold;")
+        self.lbl_error.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lbl_error.setWordWrap(True)
         self.lbl_error.hide() # Hidden by default
         cf_layout.addWidget(self.lbl_error)
         
@@ -163,7 +185,26 @@ class RegisterUserView(QWidget):
         btn_submit.setMinimumWidth(200)
         self.btn_submit = btn_submit
         
-        btn_submit.clicked.connect(self.register_success.emit)
+        def handle_register_click():
+            self.lbl_error.hide()
+            email = self.input_email.text()
+            pwd = self.input_password.text()
+            pwd_conf = self.input_confirm.text()
+            
+            if not email or not pwd or not pwd_conf:
+                self.lbl_error.setText("Los campos no pueden estar vacíos")
+                self.lbl_error.show()
+                return
+            if pwd != pwd_conf:
+                self.lbl_error.setText("Las contraseñas no coinciden")
+                self.lbl_error.show()
+                return
+                
+            self.btn_submit.setEnabled(False)
+            self.btn_submit.setText("Cargando...")
+            self.api_client.register(email, pwd)
+        
+        btn_submit.clicked.connect(handle_register_click)
         
         btn_wrapper = QHBoxLayout()
         btn_wrapper.addStretch()
@@ -193,3 +234,17 @@ class RegisterUserView(QWidget):
         center_layout.addWidget(center_widget)
         layout.addLayout(center_layout)
         layout.addStretch()
+
+    def _on_register_res(self, user_data: dict):
+        self.btn_submit.setEnabled(True)
+        self.btn_submit.setText("Registrarse")
+        self.input_email.clear()
+        self.input_password.clear()
+        self.input_confirm.clear()
+        self.register_success.emit()
+        
+    def _on_register_err(self, err_msg: str):
+        self.btn_submit.setEnabled(True)
+        self.btn_submit.setText("Registrarse")
+        self.lbl_error.setText(f"Error: {err_msg}")
+        self.lbl_error.show()

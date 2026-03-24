@@ -33,7 +33,7 @@ async def get_current_user(
     """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
+        detail="No se pudieron validar tus credenciales de acceso.",
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
@@ -64,14 +64,14 @@ async def login_for_access_token(
     if not user_db:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
+            detail="El correo electrónico o la contraseña son incorrectos.",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
     if not verify_password(form_data.password, user_db["passwordHash"]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
+            detail="El correo electrónico o la contraseña son incorrectos.",
             headers={"WWW-Authenticate": "Bearer"},
         )
     

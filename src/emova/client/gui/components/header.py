@@ -1,9 +1,12 @@
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QMenu, QSizePolicy
-from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QMenu, QSizePolicy, QStackedWidget, QVBoxLayout, QWidgetAction
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QAction, QPixmap
 import os
 
 class TopHeader(QWidget):
+    go_to_password_change = Signal()
+    logout_requested = Signal()
+    
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setFixedHeight(100) # Increased height for scaling
@@ -62,30 +65,28 @@ class TopHeader(QWidget):
         self.user_menu = QMenu(self)
         self.user_menu.setContentsMargins(0, 0, 0, 0)
         
-        # Custom widget for the menu
-        from PySide6.QtWidgets import QWidgetAction, QVBoxLayout
-        
-        menu_widget = QWidget()
-        menu_widget.setStyleSheet("""
-            QWidget {
+        # We will use a QStackedWidget embedded in the menu to cleanly toggle states
+        self.menu_stack = QStackedWidget()
+        self.menu_stack.setStyleSheet("""
+            QStackedWidget {
                 background-color: white;
                 border: 1px solid #C0C0C0;
                 border-radius: 4px;
             }
-            QLabel {
-                border: none;
-            }
+            QLabel { border: none; }
         """)
-        menu_layout = QVBoxLayout(menu_widget)
-        menu_layout.setContentsMargins(15, 15, 15, 15)
-        menu_layout.setSpacing(10)
+        
+        # ---------------- GUEST PAGE ----------------
+        self.page_guest = QWidget()
+        guest_layout = QVBoxLayout(self.page_guest)
+        guest_layout.setContentsMargins(15, 15, 15, 15)
+        guest_layout.setSpacing(10)
         
         lbl_title = QLabel("Escoge una opción para entrar:")
         lbl_title.setStyleSheet("font-size: 12px; font-weight: bold; color: black;")
         lbl_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        menu_layout.addWidget(lbl_title)
+        guest_layout.addWidget(lbl_title)
         
-        # Buttons with dark gray style according to mockup
         btn_style = """
             QPushButton {
                 background-color: #606060;
@@ -96,9 +97,7 @@ class TopHeader(QWidget):
                 font-size: 11px;
                 font-weight: bold;
             }
-            QPushButton:hover {
-                background-color: #404040;
-            }
+            QPushButton:hover { background-color: #404040; }
         """
         
         self.btn_login = QPushButton("Iniciar sesión")
@@ -109,22 +108,60 @@ class TopHeader(QWidget):
         self.btn_register.setStyleSheet(btn_style)
         self.btn_register.setCursor(Qt.CursorShape.PointingHandCursor)
         
-        # To avoid the menu closing when clicking inside the widget unless a button is clicked,
-        # we connect the buttons to emit a custom signal or close the menu and emit signal.
-        # But we'll just connect them to properties on header that MainWindow can listen to.
-        # Or even better, emit signals from the header.
+        guest_layout.addWidget(self.btn_login)
+        guest_layout.addWidget(self.btn_register)
         
-        menu_layout.addWidget(self.btn_login)
-        menu_layout.addWidget(self.btn_register)
+        self.btn_login.clicked.connect(self.user_menu.hide)
+        self.btn_register.clicked.connect(self.user_menu.hide)
         
+        self.menu_stack.addWidget(self.page_guest)
+        
+        # ---------------- AUTH PAGE ----------------
+        self.page_auth = QWidget()
+        auth_layout = QVBoxLayout(self.page_auth)
+        auth_layout.setContentsMargins(15, 15, 15, 15)
+        auth_layout.setSpacing(10)
+        
+        self.lbl_user_email = QLabel("correo@ejemplo.com")
+        self.lbl_user_email.setStyleSheet("font-size: 13px; font-weight: bold; color: black;")
+        self.lbl_user_email.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        auth_layout.addWidget(self.lbl_user_email)
+        
+        self.btn_change_pwd = QPushButton("Cambiar Contraseña")
+        self.btn_change_pwd.setStyleSheet(btn_style)
+        self.btn_change_pwd.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_change_pwd.clicked.connect(self._handle_change_pwd)
+        auth_layout.addWidget(self.btn_change_pwd)
+        
+        self.btn_logout = QPushButton("Cerrar Sesión")
+        self.btn_logout.setStyleSheet(btn_style.replace("#606060", "#A83232").replace("#404040", "#8A1C1C"))
+        self.btn_logout.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_logout.clicked.connect(self._handle_logout)
+        auth_layout.addWidget(self.btn_logout)
+        
+        self.menu_stack.addWidget(self.page_auth)
+        
+        # Action embedding
         widget_action = QWidgetAction(self)
-        widget_action.setDefaultWidget(menu_widget)
-        
+        widget_action.setDefaultWidget(self.menu_stack)
         self.user_menu.addAction(widget_action)
         self.user_button.setMenu(self.user_menu)
         
-        # Close menu when button clicked
-        self.btn_login.clicked.connect(self.user_menu.hide)
-        self.btn_register.clicked.connect(self.user_menu.hide)
-
         layout.addWidget(self.user_button)
+
+    def set_auth_state(self, is_logged_in: bool, email: str = ""):
+        if is_logged_in:
+            self.user_button.setText("👤 Bienvenido")
+            self.lbl_user_email.setText(email)
+            self.menu_stack.setCurrentIndex(1)
+        else:
+            self.user_button.setText("👤 Mi Cuenta")
+            self.menu_stack.setCurrentIndex(0)
+            
+    def _handle_change_pwd(self):
+        self.user_menu.hide()
+        self.go_to_password_change.emit()
+        
+    def _handle_logout(self):
+        self.user_menu.hide()
+        self.logout_requested.emit()
