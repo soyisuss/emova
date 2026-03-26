@@ -1,7 +1,7 @@
 """
 Main module and entry point for the FastAPI application.
 
-Configures initialization, database connections, and registers 
+Configures initialization, database connections, and registers
 each of the API modules (routers).
 """
 from fastapi import FastAPI
@@ -13,6 +13,7 @@ from emova.api.routers import (
     auth, users, reports
 )
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Asynchronous handling of startup and shutdown components like the database."""
@@ -22,7 +23,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    description="Robust API for managing users, entities, and reports of the EMOVA system.",
+    description="Robust API for managing users and reports of the EMOVA system.",
     version="0.1.0",
     lifespan=lifespan
 )
@@ -31,6 +32,7 @@ app = FastAPI(
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(reports.router)
+
 
 @app.get("/", tags=["Health"])
 async def root():
