@@ -18,6 +18,13 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8  # 8 days
 
+    # SMTP Configuration
+    SMTP_SERVER: str | None = None
+    SMTP_PORT: int | None = 587
+    SMTP_USER: str | None = None
+    SMTP_PASSWORD: str | None = None
+    EMAILS_FROM_EMAIL: str | None = None
+
     # The extra="ignore" flag discards variables defined in an extra runtime not specified above.
     model_config = SettingsConfigDict(
         env_file=".env",

@@ -4,6 +4,8 @@ Central Security and Encryption Module (Argon2 / JWT).
 Houses the robust asymmetric methods to encrypt passwords.
 Implements the confidentiality requirement and password control.
 """
+import secrets
+import string
 from datetime import datetime, timedelta, timezone
 from passlib.context import CryptContext
 from typing import Optional, Any
@@ -36,3 +38,8 @@ def create_access_token(subject: str | Any, expires_delta: Optional[timedelta] =
     to_encode = {"exp": expire, "sub": str(subject)}
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
+
+def generate_recovery_code(length: int = 6) -> str:
+    """Generates a secure random code for password recovery."""
+    alphabet = string.digits
+    return ''.join(secrets.choice(alphabet) for _ in range(length))
