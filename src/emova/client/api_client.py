@@ -25,6 +25,12 @@ class ApiClient(QObject):
     # Registration Signals
     register_success = Signal(dict) # Transmits user dict {"id": "...", "email": "..."}
     register_error = Signal(str)    # Transmits error message
+    
+    # Recovery Signals
+    forgot_password_success = Signal(dict)
+    forgot_password_error = Signal(str)
+    reset_password_success = Signal(dict)
+    reset_password_error = Signal(str)
 
     @classmethod
     def get_instance(cls):
@@ -178,5 +184,65 @@ class ApiClient(QObject):
                     self.change_password_error.emit(self._parse_error(body))
                 except Exception:
                     self.change_password_error.emit("Error de red al intentar actualizar la contraseña.")
+                    
+        reply.finished.connect(handle_reply)
+
+    def forgot_password(self, email: str):
+        """Asynchronously triggers a POST request to /auth/forgot-password to request a recovery code."""
+        request = self._create_json_request("/auth/forgot-password")
+        
+        payload = {"email": email}
+        data = QByteArray(json.dumps(payload).encode('utf-8'))
+        
+        reply = self.manager.post(request, data)
+        
+        def handle_reply():
+            reply.deleteLater()
+            if reply.error() == QNetworkReply.NetworkError.NoError:
+                try:
+                    res_text = reply.readAll().data().decode('utf-8')
+                    body = json.loads(res_text)
+                    self.forgot_password_success.emit(body)
+                except Exception:
+                    self.forgot_password_success.emit({"message": "Código enviado si el correo existe."})
+            else:
+                try:
+                    res_text = reply.readAll().data().decode('utf-8')
+                    body = json.loads(res_text)
+                    self.forgot_password_error.emit(self._parse_error(body))
+                except Exception:
+                    self.forgot_password_error.emit("Error de red al intentar recuperar contraseña.")
+                    
+        reply.finished.connect(handle_reply)
+
+    def reset_password(self, email: str, code: str, new_password: str):
+        """Asynchronously triggers a POST request to /auth/reset-password to set a new password."""
+        request = self._create_json_request("/auth/reset-password")
+        
+        payload = {
+            "email": email,
+            "code": code,
+            "new_password": new_password
+        }
+        data = QByteArray(json.dumps(payload).encode('utf-8'))
+        
+        reply = self.manager.post(request, data)
+        
+        def handle_reply():
+            reply.deleteLater()
+            if reply.error() == QNetworkReply.NetworkError.NoError:
+                try:
+                    res_text = reply.readAll().data().decode('utf-8')
+                    body = json.loads(res_text)
+                    self.reset_password_success.emit(body)
+                except Exception:
+                    self.reset_password_success.emit({"message": "Contraseña actualizada."})
+            else:
+                try:
+                    res_text = reply.readAll().data().decode('utf-8')
+                    body = json.loads(res_text)
+                    self.reset_password_error.emit(self._parse_error(body))
+                except Exception:
+                    self.reset_password_error.emit("Error de red al intentar restablecer contraseña.")
                     
         reply.finished.connect(handle_reply)

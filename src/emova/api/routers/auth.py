@@ -93,9 +93,11 @@ async def forgot_password(
     """
     user_db = await db["users"].find_one({"email": request.email})
     
-    # We always return 200 to prevent email enumeration attacks
     if not user_db:
-        return {"message": "If the email is registered, you will receive a recovery code."}
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="El correo electrónico no está registrado. No se puede enviar el código."
+        )
     
     # Generate recovery code
     code = generate_recovery_code()
