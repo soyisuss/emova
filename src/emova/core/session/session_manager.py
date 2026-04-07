@@ -1,3 +1,5 @@
+import httpx
+
 class SessionManager:
     _instance = None
     
@@ -9,6 +11,15 @@ class SessionManager:
         
     def reset_session(self):
         """Clear all active session data starting fresh."""
+        self.test_id = "PU-01"
+        try:
+            resp = httpx.get("http://127.0.0.1:8000/tests/templates/", timeout=2.0)
+            if resp.status_code == 200:
+                count = len(resp.json())
+                self.test_id = f"PU-{count + 1:02d}"
+        except Exception:
+            pass
+            
         self.participant = {}
         self.tasks = []
         self.emotions = []  # Placeholder for future emotion data per task
@@ -30,6 +41,7 @@ class SessionManager:
     def get_report_data(self):
         """Returns the centralized snapshot of all testing data."""
         return {
+            "test_id": self.test_id,
             "participant": self.participant,
             "tasks": self.tasks,
             "emotions": self.emotions,

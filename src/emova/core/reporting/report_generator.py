@@ -25,7 +25,8 @@ def generate_pdf_report(session_data, filepath="outputs/reports/report_emova.pdf
     elements = []
     
     # Document Title
-    elements.append(Paragraph("Reporte de Prueba de Usabilidad EMOVA", title_style))
+    test_id = session_data.get("test_id", "NO_ID")
+    elements.append(Paragraph(f"Reporte EMOVA - Prueba #{test_id}", title_style))
     elements.append(Spacer(1, 20))
     
     # Participant Section
@@ -65,8 +66,31 @@ def generate_pdf_report(session_data, filepath="outputs/reports/report_emova.pdf
     elements.append(Paragraph("Aún no hay datos emocionales recopilados.", normal_style))
     
     elements.append(Spacer(1, 20))
-    elements.append(Paragraph("Resultados de la Encuesta (Próximamente)", subtitle_style))
-    elements.append(Paragraph("Aún no hay resultados de encuestas.", normal_style))
+    elements.append(Paragraph("Resultados de Encuesta de Usabilidad", subtitle_style))
+    survey = session_data.get("survey", {})
+    if survey:
+        questions = {
+            "ease_of_use": "Facilidad de Uso Global",
+            "navigation": "Navegación Intuitiva",
+            "clarity": "Claridad de Instrucciones",
+            "efficiency": "Eficiencia en Tareas",
+            "consistency": "Consistencia de la Interfaz",
+            "error_recovery": "Recuperación de Errores",
+            "visual_design": "Agrado Visual y Diseño",
+            "satisfaction": "Satisfacción General"
+        }
+        
+        for key, text in questions.items():
+            val = survey.get(key, "-")
+            elements.append(Paragraph(f"<b>{text}:</b> {val} / 5", normal_style))
+            
+        comments = survey.get("comments", "")
+        if comments:
+            elements.append(Spacer(1, 8))
+            elements.append(Paragraph("<b>Comentarios Adicionales:</b>", normal_style))
+            elements.append(Paragraph(comments, normal_style))
+    else:
+        elements.append(Paragraph("Aún no hay resultados de encuestas.", normal_style))
         
     # Build PDF
     doc.build(elements)

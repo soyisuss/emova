@@ -10,6 +10,7 @@ from emova.client.gui.windows.edit_tasks import EditTaskView
 from emova.client.gui.windows.register_participant import RegisterParticipantView
 from emova.client.gui.windows.login import LoginView
 from emova.client.gui.windows.register_user import RegisterUserView
+from emova.client.gui.windows.load_test_view import LoadTestView
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -42,6 +43,7 @@ class MainWindow(QMainWindow):
         self.view_register_participant = RegisterParticipantView()
         self.view_login = LoginView()
         self.view_register_user = RegisterUserView()
+        self.view_load_test = LoadTestView()
         
         # Add views to stack
         self.stack.addWidget(self.view_dashboard)             # Index 0
@@ -52,6 +54,7 @@ class MainWindow(QMainWindow):
         self.stack.addWidget(self.view_register_participant)  # Index 5
         self.stack.addWidget(self.view_login)                 # Index 6
         self.stack.addWidget(self.view_register_user)         # Index 7
+        self.stack.addWidget(self.view_load_test)             # Index 8
         
         # Connections
         self.api_client = ApiClient.get_instance()
@@ -94,11 +97,16 @@ class MainWindow(QMainWindow):
         self.view_dashboard.go_to_register_participant.connect(lambda: self.switch_view(5))
         self.view_register_participant.go_back.connect(lambda: self.switch_view(0))
         
+        self.view_dashboard.go_to_load_test.connect(lambda: self.switch_view(8))
+        self.view_load_test.go_back.connect(lambda: self.switch_view(0))
+        
     def switch_view(self, index):
         """Helper to change the visible widget in the stack"""
         # If switching TO Edit Tasks (index 4), force it to reload UI dynamically from global state
         if index == 4:
             self.view_edit_task.load_tasks_from_session()
+        elif index == 8:
+            self.view_load_test.load_templates()
             
         self.stack.setCurrentIndex(index)
 

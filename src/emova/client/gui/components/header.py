@@ -3,6 +3,8 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QAction, QPixmap
 import os
 
+from emova.core.session.session_manager import session_manager
+
 class TopHeader(QWidget):
     go_to_password_change = Signal()
     logout_requested = Signal()
@@ -16,9 +18,9 @@ class TopHeader(QWidget):
         layout.setContentsMargins(40, 0, 40, 0)
         
         # Project ID
-        self.project_label = QLabel("PU-1")
+        self.project_label = QLabel(session_manager.test_id)
         self.project_label.setObjectName("HeaderProject")
-        self.project_label.setFixedWidth(50) # Fixed width for proper centering
+        self.project_label.setFixedWidth(80) # Fixed width for proper centering
         layout.addWidget(self.project_label)
         
         layout.addStretch() # Spacer before logo

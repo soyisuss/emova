@@ -64,6 +64,7 @@ class DashboardView(QWidget):
     go_to_add_tasks = Signal()
     go_to_edit_tasks = Signal()
     go_to_register_participant = Signal()
+    go_to_load_test = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -92,17 +93,15 @@ class DashboardView(QWidget):
         btn_register.setProperty("class", "TopActionButton")
         btn_register.clicked.connect(self.go_to_register_participant.emit)
         
-        btn_new_test = QPushButton("Nueva Prueba de Usabilidad")
-        btn_new_test.setProperty("class", "TopActionButton")
+        btn_repeat_test = QPushButton("Repetir configuración de prueba")
+        btn_repeat_test.setProperty("class", "TopActionButton")
+        btn_repeat_test.clicked.connect(self.go_to_load_test.emit)
         
         top_actions_layout.addWidget(btn_add_tasks)
         top_actions_layout.addWidget(btn_edit_tasks)
         top_actions_layout.addWidget(btn_register)
-        top_actions_layout.addWidget(btn_new_test)
+        top_actions_layout.addWidget(btn_repeat_test)
         top_actions_layout.addStretch()
-        
-        # Connect specific actions to our mockups
-        btn_new_test.clicked.connect(self.show_privacy_notice)
         
         # Central Video + Overlay Stack
         self.central_video_container = QWidget()
@@ -207,6 +206,13 @@ class DashboardView(QWidget):
             self.current_task_start_time = time.time() # Begin tracking time for this task
         else:
             self.task_overlay.hide()
+            self.stop_camera()
+            self.show_usability_survey()
+            
+    def show_usability_survey(self):
+        from emova.client.gui.components.survey_dialog import UsabilitySurveyDialog
+        dialog = UsabilitySurveyDialog(self.window())
+        dialog.exec()
             
     def handle_task_completed(self):
         # Calculate duration and save to session manager

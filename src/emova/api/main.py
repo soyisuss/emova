@@ -10,7 +10,7 @@ from contextlib import asynccontextmanager
 from emova.api.core.config import settings
 from emova.api.db.database import connect_to_mongo, close_mongo_connection
 from emova.api.routers import (
-    auth, users, reports
+    auth, users, reports, tests
 )
 
 
@@ -32,6 +32,7 @@ app = FastAPI(
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(reports.router)
+app.include_router(tests.router)
 
 
 @app.get("/", tags=["Health"])

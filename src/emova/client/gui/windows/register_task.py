@@ -1,6 +1,8 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QLineEdit, QTextEdit, QScrollArea, QFrame, QMessageBox
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QIntValidator
+import httpx
+from datetime import datetime
 
 from emova.core.session.session_manager import session_manager
 from emova.client.gui.components.custom_dialog import CustomDialog
@@ -225,6 +227,18 @@ class RegisterTaskView(QWidget):
             )
             dialog.exec()
             return
+            
+        # Save to MongoDB
+        try:
+            base_url = "http://127.0.0.1:8000"
+            payload = {
+                "test_id": session_manager.test_id,
+                "name": f"Prueba #{session_manager.test_id} ({datetime.now().strftime('%d/%m/%Y %H:%M')})",
+                "tasks": session_manager.tasks
+            }
+            httpx.post(f"{base_url}/tests/templates/", json=payload, timeout=3.0)
+        except Exception as e:
+            print(f"Advertencia: No se pudo guardar la configuración en BD: {e}")
             
         dialog = CustomDialog(
             parent=self.window(),

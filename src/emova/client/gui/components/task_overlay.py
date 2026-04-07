@@ -18,7 +18,7 @@ class TaskOverlay(QFrame):
         """)
         
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        self.setMinimumSize(400, 300)
+        self.setMinimumSize(450, 250)
         self.setMaximumSize(800, 600)  # Aumentado para no cortar textos largos
         
         self.main_layout = QVBoxLayout(self)
@@ -67,13 +67,15 @@ class TaskOverlay(QFrame):
         btn_layout.setSpacing(20)
         
         self.btn_action = QPushButton("Iniciar Tarea")
-        self.btn_action.setProperty("class", "PrimaryButton")
+        self.btn_action.setProperty("class", "DialogButton")
         self.btn_action.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_action.setMinimumWidth(140)
         self.btn_action.clicked.connect(self.handle_action_click)
         
         self.btn_cancel = QPushButton("Cancelar")
-        self.btn_cancel.setProperty("class", "PrimaryButton")
+        self.btn_cancel.setProperty("class", "DialogButton")
         self.btn_cancel.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_cancel.setMinimumWidth(140)
         self.btn_cancel.clicked.connect(self.task_cancelled.emit)
         
         btn_layout.addStretch()
@@ -103,9 +105,9 @@ class TaskOverlay(QFrame):
         else:
             self.content_widget.show()
             self.btn_toggle.setText("-")
-            self.setMinimumSize(400, 300)
-            self.setMaximumSize(600, 400)
-            self.main_layout.setContentsMargins(40, 40, 40, 40)
+            self.setMinimumSize(450, 250)
+            self.setMaximumSize(800, 600)
+            self.main_layout.setContentsMargins(25, 25, 25, 25)
             
     # ------ EVENTOS PARA ARRASTRAR EL OVERLAY ------
     def mousePressEvent(self, event):

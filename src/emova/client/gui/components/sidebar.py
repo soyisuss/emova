@@ -15,7 +15,8 @@ class Sidebar(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(10, 20, 10, 20)
         layout.setSpacing(20)
-        layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        
+        layout.addStretch() # Empuja hacia abajo para centrar
         
         # Absolute path to assets/images
         current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -37,20 +38,7 @@ class Sidebar(QWidget):
         layout.addWidget(lbl_generate)
         layout.addWidget(btn_generate)
         
-        # Descargar reporte
-        lbl_download = QLabel("Desacargar reporte")
-        lbl_download.setProperty("class", "SidebarLabel")
-        lbl_download.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        
-        btn_download = QPushButton()
-        icon_download = QIcon(os.path.join(icons_dir, "guardar.png"))
-        btn_download.setIcon(icon_download)
-        btn_download.setIconSize(QSize(55, 55))
-        btn_download.setProperty("class", "SidebarButton")
-        btn_download.setCursor(Qt.CursorShape.PointingHandCursor)
-        
-        layout.addWidget(lbl_download)
-        layout.addWidget(btn_download)
+        # El botón de descargar fue eliminado por redundancia dado que Generar Reporte ya salva el archivo.
         
         # Historial de reportes
         lbl_history = QLabel("Historial de reportes")
@@ -66,12 +54,15 @@ class Sidebar(QWidget):
         
         layout.addWidget(lbl_history)
         layout.addWidget(btn_history)
+        
+        layout.addStretch() # Empuja hacia arriba para centrar balanceadamente
 
     def trigger_pdf_generation(self):
         data = session_manager.get_report_data()
         
         # Native OS Save Dialog
-        default_filename = "report_emova.pdf"
+        test_id = session_manager.test_id if hasattr(session_manager, 'test_id') else "Desconocido"
+        default_filename = f"Reporte_EMOVA_{test_id}.pdf"
         file_filter = "Documentos PDF (*.pdf)"
         
         out_file, _ = QFileDialog.getSaveFileName(

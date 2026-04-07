@@ -1,5 +1,7 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QLineEdit, QTextEdit, QScrollArea, QFrame, QSizePolicy
 from PySide6.QtCore import Qt, Signal
+import httpx
+from datetime import datetime
 
 from emova.core.session.session_manager import session_manager
 from emova.client.gui.components.custom_dialog import CustomDialog
@@ -56,13 +58,22 @@ class EditTaskView(QWidget):
         
         # --- Bottom Finalize Button ---
         self.bottom_layout = QHBoxLayout()
+        self.bottom_layout.setSpacing(20)
+        
+        self.btn_add_more = QPushButton("Agregar más tareas (+)")
+        self.btn_add_more.setProperty("class", "AnalysisButton")
+        self.btn_add_more.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_add_more.setFixedWidth(250)
+        self.btn_add_more.clicked.connect(self.go_to_add_more)
+        
         self.btn_finalize = QPushButton("Finalizar edición")
         self.btn_finalize.setProperty("class", "PrimaryButton")
         self.btn_finalize.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.btn_finalize.setFixedWidth(300)
+        self.btn_finalize.setFixedWidth(250)
         self.btn_finalize.clicked.connect(self.save_tasks)
         
         self.bottom_layout.addStretch()
+        self.bottom_layout.addWidget(self.btn_add_more)
         self.bottom_layout.addWidget(self.btn_finalize)
         self.bottom_layout.addStretch()
         
@@ -82,8 +93,10 @@ class EditTaskView(QWidget):
             # Render Empty State View
             self.render_empty_state()
             self.btn_finalize.hide() # Hide since there is nothing to finalize
+            self.btn_add_more.hide()
         else:
             self.btn_finalize.show()
+            self.btn_add_more.show()
             for i, t in enumerate(tasks, 1):
                 self.add_edit_task_block(i, t.get("title", ""), t.get("description", ""))
                 
@@ -114,7 +127,7 @@ class EditTaskView(QWidget):
         
         self.tasks_layout.addWidget(empty_widget)
         
-    def add_edit_task_block(self, task_number, title_text, desc_text):
+    def add_edit_task_block(self, task_number, title_text, desc_text, is_new=False):
         task_widget = QWidget()
         layout = QVBoxLayout(task_widget)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -155,6 +168,9 @@ class EditTaskView(QWidget):
         layout.addLayout(action_layout)
         
         self.tasks_layout.addWidget(task_widget)
+        
+        if is_new:
+            self.toggle_edit_mode(btn_edit, input_title, input_desc)
 
     def toggle_edit_mode(self, btn, input_title, input_desc):
         # If currently locked, unlock it
@@ -180,7 +196,7 @@ class EditTaskView(QWidget):
             btn.setText("Editar")
             btn.setStyleSheet("") # Revert to global CSS class (.InlineActionButton)
 
-    def save_tasks(self):
+    def _rebuild_tasks_from_ui(self):
         # Clear existing tasks to rebuild from UI state
         session_manager.clear_tasks() if hasattr(session_manager, 'clear_tasks') else None
         if not hasattr(session_manager, 'clear_tasks'):
@@ -190,7 +206,6 @@ class EditTaskView(QWidget):
         for i in range(self.tasks_layout.count()):
             widget = self.tasks_layout.itemAt(i).widget()
             if widget:
-                # Need to use findChild recursively to hit nested fields
                 title_input = widget.findChild(QLineEdit)
                 desc_input = widget.findChild(QTextEdit)
                 if title_input and desc_input:
@@ -200,7 +215,15 @@ class EditTaskView(QWidget):
                     if title or desc:
                         session_manager.add_task(title, desc)
                         task_count += 1
-                        
+        return task_count
+        
+    def go_to_add_more(self):
+        task_num = self.tasks_layout.count() + 1
+        self.add_edit_task_block(task_num, "", "", is_new=True)
+
+    def save_tasks(self):
+        task_count = self._rebuild_tasks_from_ui()
+        
         if task_count == 0:
             dialog = CustomDialog(
                 parent=self.window(),
@@ -209,6 +232,18 @@ class EditTaskView(QWidget):
             )
             dialog.exec()
         else:
+            # Save to MongoDB
+            try:
+                base_url = "http://127.0.0.1:8000"
+                payload = {
+                    "test_id": session_manager.test_id,
+                    "name": f"Prueba #{session_manager.test_id} ({datetime.now().strftime('%d/%m/%Y %H:%M')})",
+                    "tasks": session_manager.tasks
+                }
+                httpx.post(f"{base_url}/tests/templates/", json=payload, timeout=3.0)
+            except Exception as e:
+                print(f"Advertencia: No se pudo guardar la configuración en BD: {e}")
+                
             dialog = CustomDialog(
                 parent=self.window(),
                 title="Edición Exitosa",
