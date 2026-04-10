@@ -79,11 +79,19 @@ class Sidebar(QWidget):
         try:
             generate_pdf_report(data, out_file)
             
+            # Reiniciar la sesión de prueba automáticamente tras generar reporte
+            session_manager.reset_session()
+            
+            # Actualizar el Header visial en MainWindow para mostrar el nuevo ID de prueba
+            main_win = self.window()
+            if hasattr(main_win, 'header') and hasattr(main_win.header, 'project_label'):
+                main_win.header.project_label.setText(session_manager.test_id)
+            
             # Show the centered Modal explicitly requiring user to press "Aceptar"
             dialog = CustomDialog(
                 parent=self.window(), 
                 title="Reporte Generado", 
-                message=f"El reporte de la sesión actual se ha guardado exitosamente en:\n{os.path.basename(out_file)}"
+                message=f"El reporte se ha guardado exitosamente en:\n{os.path.basename(out_file)}\n\nLa sesión se ha limpiado y está lista para una nueva prueba."
             )
             dialog.exec()
             
