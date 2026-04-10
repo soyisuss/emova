@@ -15,8 +15,21 @@ class SessionManager:
         try:
             resp = httpx.get("http://127.0.0.1:8000/tests/templates/", timeout=2.0)
             if resp.status_code == 200:
-                count = len(resp.json())
-                self.test_id = f"PU-{count + 1:02d}"
+                templates = resp.json()
+                if templates:
+                    max_num = 0
+                    for t in templates:
+                        tid = t.get("test_id", "")
+                        if tid and tid.startswith("PU-"):
+                            try:
+                                num = int(tid.split("-")[1])
+                                if num > max_num:
+                                    max_num = num
+                            except ValueError:
+                                pass
+                    # Encontrar un límite seguro superior
+                    next_id = max(max_num + 1, len(templates) + 1)
+                    self.test_id = f"PU-{next_id:02d}"
         except Exception:
             pass
             

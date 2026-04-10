@@ -31,6 +31,19 @@ def download_models():
         print(f"Descargando {MODEL_PATH}...")
         urllib.request.urlretrieve(MODEL_URL, MODEL_PATH)
 
+def find_available_cameras(max_tested=5):
+    available_cameras = []
+    print("\nBuscando cámaras disponibles... (esto puede tardar unos segundos)")
+    for i in range(max_tested):
+        # Usamos CAP_DSHOW en Windows para una apertura rápida, o apertura por defecto
+        cap = cv2.VideoCapture(i, cv2.CAP_DSHOW)
+        if cap.isOpened():
+            ret, _ = cap.read()
+            if ret:
+                available_cameras.append(i)
+            cap.release()
+    return available_cameras
+
 def main():
     print("Verificando modelos de detección facial SSD ResNet-10...")
     download_models()
@@ -41,9 +54,28 @@ def main():
     # Threshold de enfoque sugerido, puedes ajustarlo dependiendo de la cámara (por defecto es 80)
     pipeline = VideoPreprocessingPipeline(detector, focus_threshold=80.0)
     
-    print("Abriendo la cámara web (presiona 'q' para salir)...")
-    # 0 indica la cámara web instalada por defecto
-    cap = open_source(0)
+    cameras = find_available_cameras()
+    if not cameras:
+        print("No se encontraron cámaras conectadas que devuelvan imagen.")
+        cam_idx = 0
+    else:
+        print("\n=== CÁMARAS ENCONTRADAS ===")
+        for cam in cameras:
+            print(f"[{cam}] Cámara {cam}")
+        
+        while True:
+            try:
+                choice = input(f"\nIngresa el número de la cámara a usar (por defecto {cameras[0]}): ")
+                if choice.strip() == "":
+                    cam_idx = cameras[0]
+                    break
+                cam_idx = int(choice)
+                break
+            except ValueError:
+                print("Entrada inválida. Ingresa un número.")
+    
+    print(f"\nAbriendo la cámara {cam_idx} (presiona 'q' en la ventana para salir)...")
+    cap = open_source(cam_idx)
     
     while True:
         frame = read_frame(cap)
