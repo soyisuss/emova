@@ -25,6 +25,7 @@ class LoginView(QWidget):
         self.btn_back.setProperty("class", "BackButton")
         self.btn_back.setCursor(Qt.CursorShape.PointingHandCursor)
         self.btn_back.clicked.connect(self.go_back.emit)
+        self.btn_back.hide() # Oculto por seguridad, la app inicia aquí
         back_layout.addWidget(self.btn_back)
         back_layout.addStretch()
         layout.addLayout(back_layout)

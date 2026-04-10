@@ -60,6 +60,9 @@ class MainWindow(QMainWindow):
         self.api_client = ApiClient.get_instance()
         self.setup_connections()
         
+        # Force starting in Login screen
+        self.stack.setCurrentIndex(6)
+        
     def setup_connections(self):
         # Header routing
         self.header.btn_login.clicked.connect(lambda: self.switch_view(6))      # To Login
@@ -82,7 +85,7 @@ class MainWindow(QMainWindow):
         self.api_client.profile_success.connect(self._on_profile_success)
         
         # Register User View Routing
-        self.view_register_user.go_back.connect(lambda: self.switch_view(0))
+        self.view_register_user.go_back.connect(lambda: self.switch_view(6))
         self.view_register_user.go_to_login.connect(lambda: self.switch_view(6))
         self.view_register_user.register_success.connect(self._on_register_success)
         
@@ -102,6 +105,14 @@ class MainWindow(QMainWindow):
         
     def switch_view(self, index):
         """Helper to change the visible widget in the stack"""
+        # Middleware de protección de rutas
+        unprotected_routes = [2, 6, 7] # Recovery, Login, Register
+        if not getattr(self.api_client, 'token', None) and index not in unprotected_routes:
+            from PySide6.QtWidgets import QMessageBox
+            QMessageBox.warning(self, "Acceso Restringido", "Debes iniciar sesión para usar EMOVA.")
+            self.stack.setCurrentIndex(6)
+            return
+            
         # If switching TO Edit Tasks (index 4), force it to reload UI dynamically from global state
         if index == 4:
             self.view_edit_task.load_tasks_from_session()
@@ -125,6 +136,7 @@ class MainWindow(QMainWindow):
     def _handle_logout(self):
         self.api_client.set_token(None)
         self.header.set_auth_state(False)
-        self.switch_view(0)
         dialog = CustomDialog(self, "Sesión Cerrada", "Has cerrado tu sesión de forma segura.")
         dialog.exec()
+        self.switch_view(6) # Redirigir siempre a Login
+
