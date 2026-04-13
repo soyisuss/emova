@@ -61,9 +61,37 @@ def generate_pdf_report(session_data, filepath="outputs/reports/report_emova.pdf
         
     elements.append(Spacer(1, 20))
     
-    # Placeholder for Emotions & Survey
-    elements.append(Paragraph("Emociones (Próximamente)", subtitle_style))
-    elements.append(Paragraph("Aún no hay datos emocionales recopilados.", normal_style))
+    # Seccion de Emociones Detectadas
+    elements.append(Paragraph("Registro de Emociones Detectadas (IA)", subtitle_style))
+    emotions = session_data.get("emotions", [])
+    if emotions:
+        elements.append(Spacer(1, 10))
+        # Encabezados de la Tabla
+        data = [["Intervalo / Tarea", "Hora", "Emoción", "Confianza"]]
+        
+        for e in emotions:
+            data.append([
+                str(e.get("task", "-")), 
+                str(e.get("timestamp", "-")), 
+                str(e.get("emotion", "-")), 
+                str(e.get("confidence", "-"))
+            ])
+            
+        # Construir y pintar la tabla de ReportLab
+        table = Table(data, colWidths=[180, 80, 100, 100])
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#7E38B7")),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 11),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor("#f3e5f5")),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ]))
+        elements.append(table)
+    else:
+        elements.append(Paragraph("No detectamos rostros durante la prueba, o no se vinculó la red neuronal.", normal_style))
     
     elements.append(Spacer(1, 20))
     elements.append(Paragraph("Resultados de Encuesta de Usabilidad", subtitle_style))
