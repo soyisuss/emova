@@ -37,6 +37,14 @@ class SessionManager:
         self.tasks = []
         self.emotions = []  # Placeholder for future emotion data per task
         self.survey = {}    # Placeholder for future survey results
+        self.calibration_data = {} # Baseline calibration data
+        
+    def set_calibration(self, phase: str, emotion: str, confidence: float):
+        """Stored the baseline calibration emotion for positive or negative stimuli."""
+        self.calibration_data[phase] = {
+            "emotion": emotion,
+            "confidence": confidence
+        }
         
     def set_participant(self, participant_data):
         self.participant = participant_data
@@ -58,7 +66,8 @@ class SessionManager:
             "participant": self.participant,
             "tasks": self.tasks,
             "emotions": self.emotions,
-            "survey": self.survey
+            "survey": self.survey,
+            "calibration_data": self.calibration_data
         }
 
 # Global singleton instance to be imported across the application

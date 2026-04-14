@@ -8,6 +8,7 @@ from emova.client.gui.components.video_player import VideoPlayer
 from emova.client.gui.components.sidebar import Sidebar
 from emova.client.gui.camera_thread import CameraThread
 from emova.client.gui.components.task_overlay import TaskOverlay
+from emova.client.gui.components.calibration_overlay import CalibrationOverlay
 from emova.core.session.session_manager import session_manager
 
 class PrivacyNoticeDialog(QDialog):
@@ -116,6 +117,12 @@ class DashboardView(QWidget):
         self.task_overlay.hide() # Hidden by default
         self.task_overlay.task_completed.connect(self.handle_task_completed)
         self.task_overlay.task_cancelled.connect(self.handle_task_cancelled)
+        
+        # Calibration Overlay (Flotante)
+        self.calibration_overlay = CalibrationOverlay(self.central_video_container)
+        self.calibration_overlay.hide()
+        self.calibration_overlay.calibration_completed.connect(self.on_calibration_completed)
+        
         self.current_task_index = 0
         self.current_task_start_time = 0
         
@@ -164,9 +171,11 @@ class DashboardView(QWidget):
         self.camera_thread = CameraThread()
         self.camera_thread.frame_ready.connect(self.video_player.update_frame)
         self.camera_thread.emotion_ready.connect(self.handle_emotion)
+        self.camera_thread.emotion_ready.connect(self.calibration_overlay.update_latest_emotion)
         
-        # Asegurar que el recuadro flotante siempre esté visualmente por encima del video
+        # Asegurar que los recuadros flotantes siempre estén visualmente por encima del video
         self.task_overlay.raise_()
+        self.calibration_overlay.raise_()
 
     def show_privacy_notice(self):
         dialog = PrivacyNoticeDialog(self)
@@ -187,6 +196,21 @@ class DashboardView(QWidget):
         self.video_player.start_timer()
         
         self.current_task_index = 0
+        
+        # Start calibration phase first
+        self.show_calibration_phase()
+        
+    def show_calibration_phase(self):
+        self.calibration_overlay.start_calibration()
+        
+        # Centrar la calibración manualmente relativo a su contenedor padre
+        parent_rect = self.central_video_container.rect()
+        x = (parent_rect.width() - self.calibration_overlay.width()) // 2
+        y = (parent_rect.height() - self.calibration_overlay.height()) // 2
+        self.calibration_overlay.move(max(0, x), max(0, y))
+        
+    def on_calibration_completed(self):
+        # Now show the actual tasks
         self.show_current_task()
             
     def show_current_task(self):
