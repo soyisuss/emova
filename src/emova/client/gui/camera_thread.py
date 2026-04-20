@@ -21,9 +21,10 @@ class CameraThread(QThread):
         self._tensor_batch_buffer = [] # Buffer limitador para el modelo de IA
         self.batch_size = 9 # Por ej. a 3 FPS de extracción, juntará imágenes durante 3 segundos enteros.
         
-        # Inicializar pipeline de preprocesamiento
-        proto = os.path.join("models", "deploy.prototxt")
-        model = os.path.join("models", "res10_300x300_ssd_iter_140000_fp16.caffemodel")
+        # Inicializar pipeline de preprocesamiento usando rutas absolutas
+        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
+        proto = os.path.join(project_root, "models", "deploy.prototxt")
+        model = os.path.join(project_root, "models", "res10_300x300_ssd_iter_140000_fp16.caffemodel")
         
         try:
             self.detector = FaceDetector(proto, model)

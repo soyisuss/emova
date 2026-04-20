@@ -2,9 +2,9 @@ import os
 import numpy as np
 import onnxruntime as ort
 
-# Se asume que la raíz de ejecución es donde está el `pyproject.toml`
-# por ende el folder models/ queda a nivel del root.
-MODEL_PATH = os.path.join(os.getcwd(), "models", "resnet50_emotion.onnx")
+# Resolvemos la ruta a la raíz del proyecto para evitar errores si el cwd cambia
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
+MODEL_PATH = os.path.join(PROJECT_ROOT, "models", "resnet50_emotion.onnx")
 
 class EmotionPredictor:
     """Clase administradora de la sesión de ONNX para no recargarla en cada frame."""
