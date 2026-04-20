@@ -25,6 +25,11 @@ class Settings(BaseSettings):
     SMTP_PASSWORD: str | None = None
     EMAILS_FROM_EMAIL: str | None = None
 
+    # Google Cloud Storage Settings
+    GOOGLE_APPLICATION_CREDENTIALS: str | None = None
+    GCP_PROJECT_ID: str | None = None
+    GCS_BUCKET_NAME: str | None = None
+
     # The extra="ignore" flag discards variables defined in an extra runtime not specified above.
     model_config = SettingsConfigDict(
         env_file=".env",

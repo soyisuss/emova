@@ -65,3 +65,4 @@ $RECYCLE.BIN/
 .env
 .env.*
 *.env
+credentials.json
