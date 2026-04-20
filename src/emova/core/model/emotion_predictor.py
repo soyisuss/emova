@@ -2,22 +2,37 @@ import os
 import numpy as np
 import onnxruntime as ort
 
-# Se asume que la raíz de ejecución es donde está el `pyproject.toml`
-# por ende el folder models/ queda a nivel del root.
-MODEL_PATH = os.path.join(os.getcwd(), "models", "resnet50_emotion.onnx")
+# Calculamos la ruta absoluta hacia la raíz del proyecto en lugar de usar getcwd(),
+# subiendo 4 niveles: model -> core -> emova -> src -> root
+_project_root = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "..", "..")
+)
+MODEL_PATH = os.path.join(_project_root, "models", "resnet50_emotion.onnx")
+
 
 class EmotionPredictor:
     """Clase administradora de la sesión de ONNX para no recargarla en cada frame."""
+
     def __init__(self, model_path=MODEL_PATH):
+        # Validación de inicialización fallida de ONNX Runtime
+        if not hasattr(ort, "InferenceSession"):  # type: ignore
+            raise ImportError(
+                "onnxruntime no pudo inicializarse correctamente. Si estás usando 'onnxruntime-gpu', "
+                "es probable que falten las librerías nativas de CUDA/cuDNN en tu sistema. "
+                "Cambia 'onnxruntime-gpu' por 'onnxruntime' en tu pyproject.toml."
+            )
+
         if not os.path.exists(model_path):
-            raise FileNotFoundError(f"¡Modelo no encontrado en {model_path}! Asegúrate de que resnet50.onnx esté allí.")
-        
+            raise FileNotFoundError(
+                f"¡Modelo no encontrado en {model_path}! Asegúrate de que resnet50.onnx esté allí."
+            )
+
         # Recomendación técnica: Tratar de usar GPU (CUDA), sino hace fallback automático a CPU.
-        providers = ['CUDAExecutionProvider', 'CPUExecutionProvider']
-        
-        self.session = ort.InferenceSession(model_path, providers=providers)
+        providers = ["CUDAExecutionProvider", "CPUExecutionProvider"]
+
+        self.session = ort.InferenceSession(model_path, providers=providers)  # type: ignore
         self.input_name = self.session.get_inputs()[0].name
-        
+
         # Mapeo oficial del modelo según su entrenamiento
         self.emotions = ["Contento", "Neutral", "Descontento"]
 
@@ -29,28 +44,30 @@ class EmotionPredictor:
         """
         # 1. Adaptar el shape a formato Batch: (B, C, H, W)
         if len(face_tensor.shape) == 3 and face_tensor.shape == (3, 224, 224):
-            tensor_input = np.expand_dims(face_tensor, axis=0) # (1, 3, 224, 224)
+            tensor_input = np.expand_dims(face_tensor, axis=0)  # (1, 3, 224, 224)
         elif len(face_tensor.shape) == 4 and face_tensor.shape[1:] == (3, 224, 224):
-            tensor_input = face_tensor # Ya es un Batch (N, 3, 224, 224)
+            tensor_input = face_tensor  # Ya es un Batch (N, 3, 224, 224)
         else:
-            raise ValueError(f"Shape inválido para ResNet-50. Calculado: {face_tensor.shape}")
+            raise ValueError(
+                f"Shape inválido para ResNet-50. Calculado: {face_tensor.shape}"
+            )
 
         # 2. Asegurarse que el tipo de dato es float32 (Requerimiento de ONNX)
         tensor_input = tensor_input.astype(np.float32)
 
         # 3. Consumir el modelo (procesa internamente MÚLTIPLES imágenes en milisegundos a la vez)
         raw_output = self.session.run(None, {self.input_name: tensor_input})
-        
+
         # 4. Procesar Logits utilizando Softmax para todas las imágenes del batch
         # raw_output[0] tiene forma (B, número_de_clases_emocionales)
         logits = raw_output[0]
         # Truco matemático para evitar explosión (por filas/batch)
-        exp_logits = np.exp(logits - np.max(logits, axis=1, keepdims=True)) 
+        exp_logits = np.exp(logits - np.max(logits, axis=1, keepdims=True))
         probabilities = exp_logits / exp_logits.sum(axis=1, keepdims=True)
 
         # 5. Averiguar la dominancia global (Sacamos el promedio de todas las probabilidades conjuntas del Lote)
         mean_probs = probabilities.mean(axis=0)
-        
+
         # Extraer el ganador estadístico
         max_idx = np.argmax(mean_probs)
         predicted_emotion = self.emotions[max_idx]
@@ -63,9 +80,10 @@ class EmotionPredictor:
 # pero inyectando el tensor real ahora mediante ONNX.
 _predictor_instance = None
 
+
 def predict_emotion(face_tensor: np.ndarray):
     global _predictor_instance
     if _predictor_instance is None:
         _predictor_instance = EmotionPredictor()
-        
-    return _predictor_instance.predict(face_tensor)
+
+    return _predictor_instance.predict(face_tensor)
