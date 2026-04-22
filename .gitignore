@@ -9,6 +9,7 @@
 models/*.pth
 models/*.onnx
 models/*.onnx.data
+models/Modelo anterior/
 models/*.weights
 
 # Datasets

@@ -29,27 +29,35 @@ class EmotionPredictor:
         """
         # 1. Adaptar el shape a formato Batch: (B, C, H, W)
         if len(face_tensor.shape) == 3 and face_tensor.shape == (3, 224, 224):
-            tensor_input = np.expand_dims(face_tensor, axis=0) # (1, 3, 224, 224)
+            tensor_inputs = [np.expand_dims(face_tensor, axis=0)] # Lista con 1 batch de 1 imagen
         elif len(face_tensor.shape) == 4 and face_tensor.shape[1:] == (3, 224, 224):
-            tensor_input = face_tensor # Ya es un Batch (N, 3, 224, 224)
+            # El modelo solo acepta tamaño de lote 1, así que separamos el batch dinámico
+            # en imágenes individuales de tamaño (1, 3, 224, 224)
+            tensor_inputs = [np.expand_dims(img, axis=0) for img in face_tensor]
         else:
             raise ValueError(f"Shape inválido para ResNet-50. Calculado: {face_tensor.shape}")
 
-        # 2. Asegurarse que el tipo de dato es float32 (Requerimiento de ONNX)
-        tensor_input = tensor_input.astype(np.float32)
+        all_probabilities = []
 
-        # 3. Consumir el modelo (procesa internamente MÚLTIPLES imágenes en milisegundos a la vez)
-        raw_output = self.session.run(None, {self.input_name: tensor_input})
-        
-        # 4. Procesar Logits utilizando Softmax para todas las imágenes del batch
-        # raw_output[0] tiene forma (B, número_de_clases_emocionales)
-        logits = raw_output[0]
-        # Truco matemático para evitar explosión (por filas/batch)
-        exp_logits = np.exp(logits - np.max(logits, axis=1, keepdims=True)) 
-        probabilities = exp_logits / exp_logits.sum(axis=1, keepdims=True)
+        for tensor_input in tensor_inputs:
+            # 2. Asegurarse que el tipo de dato es float32 (Requerimiento de ONNX)
+            tensor_input = tensor_input.astype(np.float32)
+
+            # 3. Consumir el modelo (procesa UNA imagen a la vez)
+            raw_output = self.session.run(None, {self.input_name: tensor_input})
+            
+            # 4. Procesar Logits utilizando Softmax
+            logits = raw_output[0]
+            exp_logits = np.exp(logits - np.max(logits, axis=1, keepdims=True)) 
+            probabilities = exp_logits / exp_logits.sum(axis=1, keepdims=True)
+            
+            all_probabilities.append(probabilities[0])
+
+        # Convertir a numpy array para facilitar las matemáticas (N, num_clases)
+        all_probabilities = np.array(all_probabilities)
 
         # 5. Averiguar la dominancia global (Sacamos el promedio de todas las probabilidades conjuntas del Lote)
-        mean_probs = probabilities.mean(axis=0)
+        mean_probs = all_probabilities.mean(axis=0)
         
         # Extraer el ganador estadístico
         max_idx = np.argmax(mean_probs)
