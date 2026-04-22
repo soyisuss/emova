@@ -11,7 +11,7 @@ Requires-Dist: google-cloud-storage>=3.9.0
 Requires-Dist: matplotlib
 Requires-Dist: motor>=3.7.1
 Requires-Dist: numpy
-Requires-Dist: onnxruntime-gpu>=1.24.3
+Requires-Dist: onnxruntime>=1.24.3
 Requires-Dist: opencv-python>=4.13.0.92
 Requires-Dist: pandas
 Requires-Dist: passlib[argon2]>=1.7.4

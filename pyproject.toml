@@ -13,7 +13,7 @@ dependencies = [
     "matplotlib",
     "motor>=3.7.1",
     "numpy",
-    "onnxruntime-gpu>=1.24.3",
+    "onnxruntime>=1.24.3",
     "opencv-python>=4.13.0.92",
     "pandas",
     "passlib[argon2]>=1.7.4",

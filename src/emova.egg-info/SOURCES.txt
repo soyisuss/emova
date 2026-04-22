@@ -11,6 +11,7 @@ src/emova/api/main.py
 src/emova/api/core/config.py
 src/emova/api/core/email.py
 src/emova/api/core/security.py
+src/emova/api/core/storage.py
 src/emova/api/db/database.py
 src/emova/api/models/report.py
 src/emova/api/models/test_template.py
@@ -29,6 +30,7 @@ src/emova/client/gui/camera_thread.py
 src/emova/client/gui/main_window.py
 src/emova/client/gui/components/custom_dialog.py
 src/emova/client/gui/components/header.py
+src/emova/client/gui/components/history_dialog.py
 src/emova/client/gui/components/sidebar.py
 src/emova/client/gui/components/survey_dialog.py
 src/emova/client/gui/components/task_overlay.py
