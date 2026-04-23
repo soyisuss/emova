@@ -9,6 +9,7 @@
 models/*.pth
 models/*.onnx
 models/*.onnx.data
+models/Modelo anterior/
 models/*.weights
 
 # Datasets
@@ -56,6 +57,7 @@ $RECYCLE.BIN/
 .idea/
 *.swp
 *.sublime-project
+.sfdx/
 
 # Antigravity (Add your specific tool's config here)
 .antigravity/
@@ -64,3 +66,4 @@ $RECYCLE.BIN/
 .env
 .env.*
 *.env
+credentials.json

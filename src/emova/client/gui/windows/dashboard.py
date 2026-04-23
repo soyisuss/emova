@@ -318,8 +318,21 @@ class DashboardView(QWidget):
         
     @Slot(str, float)
     def handle_emotion(self, emotion, confidence):
-        # We can implement visual updates for emotion prediction here later
-        pass
+        # Comprobar si hay una tarea corriendo para añadirle el nombre propio
+        task_title = f"Tarea {self.current_task_index + 1}"
+        if hasattr(session_manager, 'tasks') and self.current_task_index < len(session_manager.tasks):
+            task_title = session_manager.tasks[self.current_task_index].get("title", task_title)
+            
+        # Anexar seguro
+        if not hasattr(session_manager, 'emotions'):
+            session_manager.emotions = []
+            
+        session_manager.emotions.append({
+            "task": task_title,
+            "emotion": emotion,
+            "confidence": f"{confidence * 100:.1f}%",
+            "timestamp": time.strftime('%H:%M:%S')
+        })
 
     def closeEvent(self, event):
         # Ensure thread is stopped when dashboard is closed

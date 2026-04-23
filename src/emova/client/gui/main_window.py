@@ -60,8 +60,13 @@ class MainWindow(QMainWindow):
         self.api_client = ApiClient.get_instance()
         self.setup_connections()
         
-        # Force starting in Login screen
-        self.stack.setCurrentIndex(6)
+        # Determine Startup View and Hydrate Token
+        if self.api_client.token:
+            # We have a persisted token, silently revalidate it
+            self.api_client.fetch_profile()
+            self.stack.setCurrentIndex(0) # Temporarily force dashboard
+        else:
+            self.stack.setCurrentIndex(6)
         
     def setup_connections(self):
         # Header routing
@@ -82,7 +87,10 @@ class MainWindow(QMainWindow):
         self.view_login.go_back.connect(lambda: self.switch_view(0))
         self.view_login.go_to_register.connect(lambda: self.switch_view(7))
         self.view_login.go_to_recovery.connect(lambda: self.switch_view(2)) # To Recovery Pwd
+        
+        # Auth Session State
         self.api_client.profile_success.connect(self._on_profile_success)
+        self.api_client.profile_error.connect(self._on_profile_error)
         
         # Register User View Routing
         self.view_register_user.go_back.connect(lambda: self.switch_view(6))
@@ -124,9 +132,23 @@ class MainWindow(QMainWindow):
     def _on_profile_success(self, user_data: dict):
         email = user_data.get("email", "Usuario")
         self.header.set_auth_state(True, email)
+        
+        # Avoid showing "Welcome" dialog if we're silently auto-logging-in from persisted Token
+        was_login_screen = (self.stack.currentIndex() == 6)
         self.switch_view(0)
-        dialog = CustomDialog(self, "Inicio de Sesión", f"¡Bienvenido! Has iniciado sesión como {email}.")
-        dialog.exec()
+        
+        if was_login_screen:
+            dialog = CustomDialog(self, "Inicio de Sesión", f"¡Bienvenido! Has iniciado sesión como {email}.")
+            dialog.exec()
+            
+    def _on_profile_error(self, message):
+        """Silently logs out the user if the persisted token has expired or is invalid."""
+        self.api_client.set_token(None)
+        self.header.set_auth_state(False)
+        if self.stack.currentIndex() != 6:
+            dialog = CustomDialog(self, "Sesión Caducada", "Tu sesión ha caducado. Por favor, inicia sesión nuevamente.")
+            dialog.exec()
+            self.stack.setCurrentIndex(6)
         
     def _on_register_success(self):
         self.switch_view(6)
