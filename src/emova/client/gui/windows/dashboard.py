@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QDialog, QGridLayout
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QDialog, QGridLayout, QComboBox
 from PySide6.QtCore import Qt, Slot, Signal
 from PySide6.QtGui import QIcon
 import os
@@ -136,6 +136,49 @@ class DashboardView(QWidget):
         # Bottom analysis actions
         bottom_actions_layout = QHBoxLayout()
         
+        camera_layout = QVBoxLayout()
+        camera_layout.setSpacing(5)
+        
+        lbl_camera = QLabel("Seleccione la cámara que desea usar:")
+        lbl_camera.setStyleSheet("color: #7E38B7; font-weight: bold; font-size: 13px;")
+        
+        self.camera_selector = QComboBox()
+        plus_icon_path = os.path.join(icons_dir, "plus.svg").replace("\\", "/")
+        self.camera_selector.setStyleSheet(f"""
+            QComboBox {{
+                border: 2px solid #7E38B7;
+                border-radius: 8px;
+                padding: 5px 10px;
+                background-color: white;
+                color: #333333;
+                font-weight: bold;
+                font-size: 14px;
+            }}
+            QComboBox::drop-down {{
+                subcontrol-origin: padding;
+                subcontrol-position: top right;
+                width: 30px;
+                border-left-width: 2px;
+                border-left-color: #f3e5f5;
+                border-left-style: solid;
+            }}
+            QComboBox::down-arrow {{
+                image: url({plus_icon_path});
+                width: 16px;
+                height: 16px;
+                margin-right: -4px;
+            }}
+            QComboBox QAbstractItemView {{
+                border: 2px solid #7E38B7;
+                selection-background-color: #7E38B7;
+                selection-color: white;
+                color: #333333;
+                background-color: white;
+            }}
+        """)
+        self.camera_selector.setMinimumWidth(250)
+        self.populate_cameras()
+        
         self.btn_start_analysis = QPushButton(" Iniciar análisis")
         icon_play = QIcon(os.path.join(icons_dir, "play.png"))
         self.btn_start_analysis.setIcon(icon_play)
@@ -150,6 +193,11 @@ class DashboardView(QWidget):
         self.btn_stop_analysis.setEnabled(False) # Disabled initially
         
         bottom_actions_layout.addStretch()
+        
+        camera_layout.addWidget(lbl_camera)
+        camera_layout.addWidget(self.camera_selector)
+        bottom_actions_layout.addLayout(camera_layout)
+        bottom_actions_layout.addSpacing(10)
         bottom_actions_layout.addWidget(self.btn_start_analysis)
         bottom_actions_layout.addSpacing(20)
         bottom_actions_layout.addWidget(self.btn_stop_analysis)
@@ -190,6 +238,10 @@ class DashboardView(QWidget):
 
         self.btn_start_analysis.setEnabled(False)
         self.btn_stop_analysis.setEnabled(True)
+        self.camera_selector.setEnabled(False)
+        
+        idx = self.camera_selector.currentIndex()
+        self.camera_thread.camera_index = idx if idx >= 0 else 0
         self.camera_thread.start()
         
         self.video_player.reset_timer()
@@ -257,6 +309,7 @@ class DashboardView(QWidget):
     def stop_camera(self):
         self.btn_start_analysis.setEnabled(True)
         self.btn_stop_analysis.setEnabled(False)
+        self.camera_selector.setEnabled(True)
         self.camera_thread.stop()
         
         self.video_player.pause_timer()
@@ -273,3 +326,16 @@ class DashboardView(QWidget):
         if hasattr(self, 'camera_thread') and self.camera_thread.isRunning():
             self.camera_thread.stop()
         super().closeEvent(event)
+
+    def populate_cameras(self):
+        from PySide6.QtMultimedia import QMediaDevices
+        cameras = QMediaDevices.videoInputs()
+        if not cameras:
+            self.camera_selector.addItem("Sin cámaras disponibles")
+            self.camera_selector.setEnabled(False)
+            self.btn_start_analysis.setEnabled(False)
+            return
+
+        for camera in cameras:
+            self.camera_selector.addItem(camera.description())
+

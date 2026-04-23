@@ -13,6 +13,7 @@ class ReportBase(BaseModel):
     """Universal base for an associated report."""
     reportUrl: str = Field(..., description="Signed URL or relative Google Cloud Storage path")
     userId: PyObjectId = Field(..., description="Direct User reference for fast RBAC access control")
+    testName: str = Field(default="Prueba General", description="Nombre o Identificador visible de la sesión de prueba")
 
 class ReportCreate(ReportBase):
     """Schema for requesting new GCS Reports."""

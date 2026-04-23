@@ -14,7 +14,7 @@ class FaceDetector:
         self.net.setInput(blob)
         return self.net.forward()
 
-    def get_faces(self, frame, confidence_threshold=0.5):
+    def get_faces(self, frame, confidence_threshold=0.6):
         """
         Detecta rostros usando el modelo SSD y devuelve las coordenadas de los bounding boxes.
         """

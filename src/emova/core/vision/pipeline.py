@@ -8,7 +8,7 @@ from emova.core.vision.face_cropper import crop_face
 from emova.core.vision.preprocess import preprocess
 
 class VideoPreprocessingPipeline:
-    def __init__(self, face_detector: FaceDetector, focus_threshold: float = 80.0):
+    def __init__(self, face_detector: FaceDetector, focus_threshold: float = 60.0):
         self.face_detector = face_detector
         self.focus_threshold = focus_threshold
         

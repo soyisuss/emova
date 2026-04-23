@@ -52,6 +52,7 @@ src/emova/core/session/task_manager.py
 src/emova/core/storage/__init__.py
 src/emova/core/storage/emotion_logger.py
 src/emova/core/vision/__init__.py
+src/emova/core/vision/emotion_model.py
 src/emova/core/vision/face_cropper.py
 src/emova/core/vision/face_detector.py
 src/emova/core/vision/focus_validator.py
