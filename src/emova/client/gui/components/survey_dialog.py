@@ -10,11 +10,8 @@ class UsabilitySurveyDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("SurveyDialog")
-        self.setWindowTitle("Encuesta de Usabilidad General")
-        self.setFixedSize(700, 750)
-        
-        # Eliminar las restricciones de cierre para que sí pueda cerrarse la ventana
-        # self.setWindowFlags(self.windowFlags() & ~Qt.WindowType.WindowCloseButtonHint)
+        self.setWindowTitle("Encuesta de Usabilidad")
+        self.setFixedSize(700, 800)
         
         # Diseño de Fondo
         self.setStyleSheet("""
@@ -50,7 +47,7 @@ class UsabilitySurveyDialog(QDialog):
         title_lbl.setStyleSheet("font-size: 26px; font-weight: bold; color: #7E38B7;")
         title_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
-        subtitle_lbl = QLabel("Evalúa tu experiencia interactuando con la interfaz/producto que se te pidió probar. (1 = Muy en Desacuerdo, 5 = Muy de Acuerdo)")
+        subtitle_lbl = QLabel("Evalúa tu experiencia con cada tarea realizada y con la interfaz en general.\n(1 = Muy difícil/Muy en desacuerdo, 5 = Muy fácil/Muy de acuerdo)")
         subtitle_lbl.setStyleSheet("font-size: 15px; color: #666666; margin-bottom: 10px;")
         subtitle_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         subtitle_lbl.setWordWrap(True)
@@ -64,17 +61,50 @@ class UsabilitySurveyDialog(QDialog):
         line.setStyleSheet("color: #DDDDDD; margin-bottom: 10px;")
         self.content_layout.addWidget(line)
         
-        # 8 Likert Scale Questions
-        self.questions_data = [
-            ("ease_of_use", "1. ¿El producto evaluado fue fácil de utilizar en su conjunto?"),
-            ("navigation", "2. ¿Fue intuitivo navegar por la plataforma y encontrar la información?"),
-            ("clarity", "3. ¿Los elementos en pantalla y las funciones resultaron siempre claros?"),
-            ("efficiency", "4. ¿Sentiste que se requiere poco tiempo/esfuerzo para hacer la tarea?"),
-            ("consistency", "5. ¿La interfaz mantiene una consistencia (mismos botones, secciones)?"),
-            ("error_recovery", "6. ¿Si cometiste un error o te perdiste, fue fácil recuperarte?"),
-            ("visual_design", "7. ¿El diseño visual de la interfaz evaluada te pareció atractivo?"),
-            ("satisfaction", "8. ¿Qué tan satisfecho estás con el uso de este sistema?")
+        # Get tasks from session manager
+        tasks = session_manager.tasks
+        
+        # === PER-TASK QUESTIONS ===
+        self.questions_data = []
+        
+        if tasks:
+            # Section title for tasks
+            task_section_lbl = QLabel("EVALUACIÓN DE TAREAS")
+            task_section_lbl.setStyleSheet("font-size: 18px; font-weight: bold; color: #7E38B7; margin-top: 10px;")
+            task_section_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.content_layout.addWidget(task_section_lbl)
+            
+            for idx, task in enumerate(tasks):
+                task_title = task.get("title", f"Tarea {idx + 1}")
+                
+                # Question for this specific task
+                self.questions_data.append((
+                    f"task_{idx}_ease",
+                    f"{idx + 1}. ¿Qué tan fácil fue realizar la tarea: \"{task_title}\"?"
+                ))
+        
+        # === GENERAL USABILITY QUESTIONS (4 questions) ===
+        general_section_lbl = QLabel("EVALUACIÓN GENERAL DE USABILIDAD")
+        general_section_lbl.setStyleSheet("font-size: 18px; font-weight: bold; color: #7E38B7; margin-top: 20px;")
+        general_section_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.content_layout.addWidget(general_section_lbl)
+        
+        # Add 4 general usability questions
+        general_questions = [
+            ("ease_of_use", "La interfaz general fue fácil de utilizar."),
+            ("navigation", "Fue intuitivo navegar por la plataforma."),
+            ("difficulty", "¿Qué tan difícil fue completar las tareas?"),
+            ("satisfaction", "Estoy satisfecho con la experiencia general.")
         ]
+        
+        # Offset for general questions
+        question_offset = len(tasks) if tasks else 0
+        
+        for idx, (key, text) in enumerate(general_questions):
+            self.questions_data.append((
+                key,
+                f"{idx + 1 + question_offset}. {text}"
+            ))
         
         self.button_groups = {}
         
@@ -85,7 +115,7 @@ class UsabilitySurveyDialog(QDialog):
             q_layout.setSpacing(10)
             
             q_lbl = QLabel(text)
-            q_lbl.setStyleSheet("font-weight: 600; font-size: 16px; color: #333;")
+            q_lbl.setStyleSheet("font-weight: 600; font-size: 15px; color: #333;")
             q_lbl.setWordWrap(True)
             q_layout.addWidget(q_lbl)
             
@@ -93,7 +123,7 @@ class UsabilitySurveyDialog(QDialog):
             opts_layout.setSpacing(15)
             
             # Etiqueta Menor
-            lbl_low = QLabel("Malo (1)")
+            lbl_low = QLabel("Muy difícil (1)")
             lbl_low.setStyleSheet("color: #999; font-size: 12px; margin-right: 10px;")
             opts_layout.addWidget(lbl_low)
             
@@ -118,7 +148,7 @@ class UsabilitySurveyDialog(QDialog):
                 bgroup.addButton(rb, id=i)
             
             # Etiqueta Mayor
-            lbl_high = QLabel("(5) Excelente")
+            lbl_high = QLabel("(5) Muy fácil")
             lbl_high.setStyleSheet("color: #999; font-size: 12px; margin-left: 10px;")
             opts_layout.addWidget(lbl_high)
             
@@ -133,13 +163,13 @@ class UsabilitySurveyDialog(QDialog):
         com_widget = QWidget()
         com_layout = QVBoxLayout(com_widget)
         com_layout.setContentsMargins(0, 0, 0, 0)
-        com_lbl = QLabel("9. Comentarios sobre la interfaz o producto evaluado (Opcional):")
+        com_lbl = QLabel("Comentarios adicionales (Opcional):")
         com_lbl.setStyleSheet("font-weight: 600; font-size: 16px; color: #333;")
         com_layout.addWidget(com_lbl)
         
         self.txt_comments = QTextEdit()
-        self.txt_comments.setFixedHeight(120)
-        self.txt_comments.setPlaceholderText("Comentarios adicionales sobre tu experiencia con el prototipo/sistema...")
+        self.txt_comments.setFixedHeight(100)
+        self.txt_comments.setPlaceholderText("Comentarios sobre tu experiencia...")
         self.txt_comments.setStyleSheet("""
             QTextEdit {
                 border: 1px solid #D0D0D0; 

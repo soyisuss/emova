@@ -28,6 +28,7 @@ src/emova/client/api_client.py
 src/emova/client/gui/__init__.py
 src/emova/client/gui/camera_thread.py
 src/emova/client/gui/main_window.py
+src/emova/client/gui/components/calibration_overlay.py
 src/emova/client/gui/components/custom_dialog.py
 src/emova/client/gui/components/header.py
 src/emova/client/gui/components/history_dialog.py
