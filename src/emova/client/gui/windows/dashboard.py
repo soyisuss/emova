@@ -114,6 +114,7 @@ class DashboardView(QWidget):
         # Task Overlay (Flotante)
         self.task_overlay = TaskOverlay(self.central_video_container)
         self.task_overlay.hide() # Hidden by default
+        self.task_overlay.task_started.connect(self.handle_task_started)
         self.task_overlay.task_completed.connect(self.handle_task_completed)
         self.task_overlay.task_cancelled.connect(self.handle_task_cancelled)
         
@@ -258,7 +259,7 @@ class DashboardView(QWidget):
             y = (parent_rect.height() - self.task_overlay.height()) // 2
             self.task_overlay.move(max(0, x), max(0, y))
             
-            self.current_task_start_time = time.time() # Begin tracking time for this task
+            # Time tracking starts when user clicks 'Iniciar Tarea' in handle_task_started
         else:
             self.task_overlay.hide()
             self.stop_camera()
@@ -269,7 +270,15 @@ class DashboardView(QWidget):
         dialog = UsabilitySurveyDialog(self.window())
         dialog.exec()
             
+    def handle_task_started(self):
+        self.current_task_start_time = time.time()
+        if hasattr(self, 'camera_thread'):
+            self.camera_thread.is_detecting = True
+            
     def handle_task_completed(self):
+        if hasattr(self, 'camera_thread'):
+            self.camera_thread.is_detecting = False
+            
         # Calculate duration and save to session manager
         duration = int(time.time() - self.current_task_start_time)
         
@@ -282,10 +291,15 @@ class DashboardView(QWidget):
         self.show_current_task()
         
     def handle_task_cancelled(self):
+        if hasattr(self, 'camera_thread'):
+            self.camera_thread.is_detecting = False
         self.task_overlay.hide()
         # Optionally, could also stop analysis here if cancelling a task means aborting.
         
     def stop_camera(self):
+        if hasattr(self, 'camera_thread'):
+            self.camera_thread.is_detecting = False
+            
         self.btn_start_analysis.setEnabled(True)
         self.btn_stop_analysis.setEnabled(False)
         self.camera_selector.setEnabled(True)

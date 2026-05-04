@@ -19,10 +19,11 @@ class CameraThread(QThread):
         self._is_running = False
         self.camera_index = 0
         self.cap = None
+        self.is_detecting = False
         self.sampler = FPSSampler(3)  # Process every 3rd frame
         self._tensor_batch_buffer = []  # Buffer limitador para el modelo de IA
-        # Por ej. a 3 FPS de extracción, juntará imágenes durante 3 segundos enteros.
-        self.batch_size = 9
+        # Por ej. a 3 FPS de extracción, juntará imágenes durante 1 segundo entero.
+        self.batch_size = 3
 
         # Inicializar pipeline de preprocesamiento usando rutas absolutas
         project_root = os.path.abspath(os.path.join(
@@ -60,8 +61,8 @@ class CameraThread(QThread):
                     cv2.rectangle(display_frame, (x1, y1),
                                   (x2, y2), (0, 255, 0), 2)
 
-                # Extraer preprocesamiento sólo si es momento en base al sampleo y si hay caras
-                if len(results) > 0 and self.sampler.should_process():
+                # Extraer preprocesamiento sólo si es momento en base al sampleo, si hay caras, y si se está detectando activamente
+                if len(results) > 0 and self.sampler.should_process() and self.is_detecting:
                     # Acumulamos el primer rostro detectado (si hubiera varios, tomamos el principal)
                     tensor = results[0]["face_tensor"]
                     self._tensor_batch_buffer.append(tensor)

@@ -47,7 +47,7 @@ class UsabilitySurveyDialog(QDialog):
         title_lbl.setStyleSheet("font-size: 26px; font-weight: bold; color: #7E38B7;")
         title_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
-        subtitle_lbl = QLabel("Evalúa tu experiencia con cada tarea realizada y con la interfaz en general.\n(1 = Muy difícil/Muy en desacuerdo, 5 = Muy fácil/Muy de acuerdo)")
+        subtitle_lbl = QLabel("Evalúa tu experiencia con cada tarea realizada y con la interfaz en general.\n(1 = Muy difícil, 5 = Muy fácil)")
         subtitle_lbl.setStyleSheet("font-size: 15px; color: #666666; margin-bottom: 10px;")
         subtitle_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         subtitle_lbl.setWordWrap(True)
@@ -80,7 +80,7 @@ class UsabilitySurveyDialog(QDialog):
                 # Question for this specific task
                 self.questions_data.append((
                     f"task_{idx}_ease",
-                    f"{idx + 1}. ¿Qué tan fácil fue realizar la tarea: \"{task_title}\"?"
+                    f"{idx + 1}. ¿Te resultó fácil o difícil realizar la tarea: \"{task_title}\"?"
                 ))
         
         # === GENERAL USABILITY QUESTIONS (4 questions) ===
@@ -91,10 +91,10 @@ class UsabilitySurveyDialog(QDialog):
         
         # Add 4 general usability questions
         general_questions = [
-            ("ease_of_use", "La interfaz general fue fácil de utilizar."),
-            ("navigation", "Fue intuitivo navegar por la plataforma."),
-            ("difficulty", "¿Qué tan difícil fue completar las tareas?"),
-            ("satisfaction", "Estoy satisfecho con la experiencia general.")
+            ("ease_of_use", "¿Te resultó fácil o difícil utilizar la interfaz en general?"),
+            ("navigation", "¿Te resultó fácil o difícil navegar por la plataforma?"),
+            ("difficulty", "En general, ¿te resultó fácil o difícil completar las tareas?"),
+            ("satisfaction", "¿Te resultó fácil o difícil interactuar con el sistema en general?")
         ]
         
         # Offset for general questions
