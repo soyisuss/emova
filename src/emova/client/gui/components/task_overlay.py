@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame, QSizePolicy
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame, QSizePolicy, QTextEdit
 from PySide6.QtCore import Qt, Signal, QPoint
 
 class TaskOverlay(QFrame):
@@ -18,7 +18,7 @@ class TaskOverlay(QFrame):
         """)
         
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        self.setMinimumSize(450, 250)
+        self.setMinimumSize(500, 350)
         self.setMaximumSize(800, 600)  # Aumentado para no cortar textos largos
         
         self.main_layout = QVBoxLayout(self)
@@ -55,10 +55,10 @@ class TaskOverlay(QFrame):
         self.desc_title = QLabel("Descripción:")
         self.desc_title.setStyleSheet("font-weight: bold; font-size: 16px;")
         
-        self.desc_label = QLabel("...")
-        self.desc_label.setWordWrap(True)
-        self.desc_label.setStyleSheet("font-size: 16px; color: #333;")
-        self.desc_label.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
+        self.desc_label = QTextEdit("...")
+        self.desc_label.setReadOnly(True)
+        self.desc_label.setFrameShape(QFrame.Shape.NoFrame)
+        self.desc_label.setStyleSheet("font-size: 16px; color: #333; background-color: transparent;")
         
         content_layout.addWidget(self.desc_title)
         content_layout.addWidget(self.desc_label, stretch=1)
@@ -105,9 +105,10 @@ class TaskOverlay(QFrame):
         else:
             self.content_widget.show()
             self.btn_toggle.setText("-")
-            self.setMinimumSize(450, 250)
+            self.setMinimumSize(500, 350)
             self.setMaximumSize(800, 600)
             self.main_layout.setContentsMargins(25, 25, 25, 25)
+            self.adjustSize()
             
     # ------ EVENTOS PARA ARRASTRAR EL OVERLAY ------
     def mousePressEvent(self, event):
@@ -142,6 +143,9 @@ class TaskOverlay(QFrame):
         self.title_label.setText(f"Tarea {task_number}: {title}")
         self.desc_label.setText(description)
         self.reset_state()
+        
+        # Forzar recalculo de dimensiones para evitar que textos largos se corten
+        self.adjustSize()
         
     def reset_state(self):
         self.state = "INIT"

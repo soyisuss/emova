@@ -42,6 +42,19 @@ class RegisterTaskView(QWidget):
         
         main_layout.addLayout(top_layout)
         
+        # --- Test Alias ---
+        alias_layout = QHBoxLayout()
+        lbl_alias = QLabel("Alias / Nombre de la Prueba:")
+        lbl_alias.setStyleSheet("font-weight: bold; font-size: 16px; color: #333;")
+        self.input_alias = QLineEdit()
+        self.input_alias.setPlaceholderText("Ej. Prueba Piloto Sistema XYZ")
+        self.input_alias.setStyleSheet("background-color: white; color: black; border: 2px solid #7E38B7; padding: 5px; font-size: 14px;")
+        
+        alias_layout.addWidget(lbl_alias)
+        alias_layout.addWidget(self.input_alias)
+        
+        main_layout.addLayout(alias_layout)
+        
         # --- Scrollable Content Area ---
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
@@ -230,10 +243,14 @@ class RegisterTaskView(QWidget):
             
         # Save to MongoDB
         try:
+            alias = self.input_alias.text().strip()
+            if not alias:
+                alias = f"Prueba #{session_manager.test_id} ({datetime.now().strftime('%d/%m/%Y %H:%M')})"
+                
             base_url = "http://127.0.0.1:8000"
             payload = {
                 "test_id": session_manager.test_id,
-                "name": f"Prueba #{session_manager.test_id} ({datetime.now().strftime('%d/%m/%Y %H:%M')})",
+                "name": alias,
                 "tasks": session_manager.tasks
             }
             httpx.post(f"{base_url}/tests/templates/", json=payload, timeout=3.0)
