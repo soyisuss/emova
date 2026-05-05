@@ -1,4 +1,5 @@
 import httpx
+from emova.client.api_client import ApiClient
 
 class SessionManager:
     _instance = None
@@ -13,7 +14,9 @@ class SessionManager:
         """Clear all active session data starting fresh."""
         self.test_id = "PU-01"
         try:
-            resp = httpx.get("http://127.0.0.1:8000/tests/templates/", timeout=2.0)
+            token = ApiClient.get_instance().token
+            headers = {"Authorization": f"Bearer {token}"} if token else {}
+            resp = httpx.get("http://127.0.0.1:8000/tests/templates/", headers=headers, timeout=2.0)
             if resp.status_code == 200:
                 templates = resp.json()
                 if templates:

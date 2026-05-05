@@ -126,7 +126,10 @@ class LoadTestView(QWidget):
         
         try:
             base_url = "http://127.0.0.1:8000"
-            response = httpx.get(f"{base_url}/tests/templates/", timeout=5.0)
+            from emova.client.api_client import ApiClient
+            token = ApiClient.get_instance().token
+            headers = {"Authorization": f"Bearer {token}"} if token else {}
+            response = httpx.get(f"{base_url}/tests/templates/", headers=headers, timeout=5.0)
             if response.status_code == 200:
                 templates = response.json()
                 self.populate_list(templates)
@@ -271,7 +274,10 @@ class LoadTestView(QWidget):
         if msg_box.clickedButton() == btn_si:
             try:
                 base_url = "http://127.0.0.1:8000"
-                response = httpx.delete(f"{base_url}/tests/templates/{template_id}", timeout=5.0)
+                from emova.client.api_client import ApiClient
+                token = ApiClient.get_instance().token
+                headers = {"Authorization": f"Bearer {token}"} if token else {}
+                response = httpx.delete(f"{base_url}/tests/templates/{template_id}", headers=headers, timeout=5.0)
                 if response.status_code == 204:
                     self.load_templates()
                 else:
@@ -332,7 +338,10 @@ class LoadTestView(QWidget):
                 "name": f"Prueba #{session_manager.test_id} ({datetime.now().strftime('%d/%m/%Y %H:%M')})",
                 "tasks": session_manager.tasks
             }
-            httpx.post(f"{base_url}/tests/templates/", json=payload, timeout=3.0)
+            from emova.client.api_client import ApiClient
+            token = ApiClient.get_instance().token
+            headers = {"Authorization": f"Bearer {token}"} if token else {}
+            httpx.post(f"{base_url}/tests/templates/", json=payload, headers=headers, timeout=3.0)
         except Exception as e:
             print(f"Aviso: No se pudo registrar la nueva copia en la BD. Detalles: {e}")
             

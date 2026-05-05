@@ -23,6 +23,7 @@ class TestTemplateResponse(TestTemplateBase):
 
 class TestTemplateInDB(TestTemplateBase):
     id: Optional[PyObjectId] = Field(None, alias="_id")
+    user_id: Optional[str] = Field(None, description="ID of the user who owns this template")
     createdAt: datetime = Field(default_factory=datetime.utcnow)
 
     model_config = ConfigDict(populate_by_name=True)

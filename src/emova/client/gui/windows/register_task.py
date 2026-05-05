@@ -253,7 +253,10 @@ class RegisterTaskView(QWidget):
                 "name": alias,
                 "tasks": session_manager.tasks
             }
-            httpx.post(f"{base_url}/tests/templates/", json=payload, timeout=3.0)
+            from emova.client.api_client import ApiClient
+            token = ApiClient.get_instance().token
+            headers = {"Authorization": f"Bearer {token}"} if token else {}
+            httpx.post(f"{base_url}/tests/templates/", json=payload, headers=headers, timeout=3.0)
         except Exception as e:
             print(f"Advertencia: No se pudo guardar la configuración en BD: {e}")
             
