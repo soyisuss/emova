@@ -123,14 +123,68 @@ def generate_pdf_report(session_data, filepath="outputs/reports/report_emova.pdf
     elements.append(Paragraph("Resultados de Encuesta de Usabilidad", subtitle_style))
     survey = session_data.get("survey", {})
     if survey:
+        # Extraer puntuaciones de tareas y cruzar con emociones si están disponibles
+        tasks = session_data.get("tasks", [])
+        if tasks:
+            elements.append(Spacer(1, 5))
+            elements.append(Paragraph("<b>Evaluación por Tarea y Análisis Emocional:</b>", styles['Heading3']))
+            
+            # Recalcular emociones predominantes para el análisis
+            predominant_emotions = {}
+            if emotions:
+                for e in emotions:
+                    t_name = str(e.get("task", "-"))
+                    if t_name not in predominant_emotions:
+                        predominant_emotions[t_name] = {}
+                    emo = str(e.get("emotion", "-"))
+                    predominant_emotions[t_name][emo] = predominant_emotions[t_name].get(emo, 0) + 1
+            
+            for idx, task in enumerate(tasks):
+                task_title = task.get("title", f"Tarea {idx + 1}")
+                task_score = survey.get(f"task_{idx}_ease")
+                
+                if task_score is not None:
+                    # Buscar emoción predominante de esta tarea
+                    pred_emo = "-"
+                    if task_title in predominant_emotions and predominant_emotions[task_title]:
+                        pred_emo = max(predominant_emotions[task_title], key=predominant_emotions[task_title].get)
+                    
+                    # Generar pequeño análisis
+                    analysis = ""
+                    if pred_emo != "-":
+                        negative_emotions = ["Angry", "Disgust", "Fear", "Sad"]
+                        positive_emotions = ["Happy", "Surprise"]
+                        
+                        is_negative = pred_emo in negative_emotions
+                        is_positive = pred_emo in positive_emotions
+                        
+                        try:
+                            score_val = int(task_score)
+                            if score_val <= 2 and is_negative:
+                                analysis = f"El usuario reportó alta dificultad y predominó la emoción negativa '{pred_emo}'. Esto sugiere frustración o confusión real."
+                            elif score_val >= 4 and is_positive:
+                                analysis = f"El usuario reportó facilidad y predominó una emoción positiva '{pred_emo}', lo cual es congruente con una buena usabilidad."
+                            elif score_val >= 4 and is_negative:
+                                analysis = f"A pesar de calificar la tarea como fácil, predominaron emociones negativas '{pred_emo}', lo que podría indicar un esfuerzo cognitivo no reportado."
+                            elif score_val <= 2 and is_positive:
+                                analysis = f"Curiosamente, el usuario reportó dificultad pero exhibió emociones positivas '{pred_emo}'. Podría indicar una tarea desafiante pero entretenida."
+                            else:
+                                analysis = f"La calificación fue de {score_val}/5 con una emoción predominante de '{pred_emo}'."
+                        except ValueError:
+                            analysis = f"Emoción predominante: '{pred_emo}'."
+                    else:
+                        analysis = "No se detectaron emociones suficientes durante esta tarea para realizar un análisis."
+
+                    elements.append(Paragraph(f"• <b>{task_title}:</b> Calificación {task_score} / 5", normal_style))
+                    elements.append(Paragraph(f"<i>Análisis:</i> {analysis}", normal_style))
+                    elements.append(Spacer(1, 5))
+            elements.append(Spacer(1, 10))
+
+        elements.append(Paragraph("<b>Evaluación General:</b>", styles['Heading3']))
         questions = {
             "ease_of_use": "Facilidad de Uso Global",
             "navigation": "Navegación Intuitiva",
-            "clarity": "Claridad de Instrucciones",
-            "efficiency": "Eficiencia en Tareas",
-            "consistency": "Consistencia de la Interfaz",
-            "error_recovery": "Recuperación de Errores",
-            "visual_design": "Agrado Visual y Diseño",
+            "difficulty": "Facilidad para Completar Tareas",
             "satisfaction": "Satisfacción General"
         }
         
