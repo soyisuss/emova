@@ -83,13 +83,13 @@ class ApiClient(QObject):
                              f"Bearer {self.token}".encode('utf-8'))
         return req
 
-    def _parse_error(self, body: dict) -> str:
+    def _parse_error(self, body: dict, error_code: str = "ERR_API_00") -> str:
         """Extracts readable error text from FastAPI dictionaries or PyDantic Validation 422 Arrays."""
         detail = body.get("detail", "Error desconocido.")
         if isinstance(detail, list) and len(detail) > 0:
             msg = detail[0].get("msg", "Error de validación.")
-            return msg.replace("Value error, ", "")  # Clean up pydantic prefix
-        return str(detail)
+            return f"[{error_code}] {msg.replace('Value error, ', '')}"  # Clean up pydantic prefix
+        return f"[{error_code}] {str(detail)}"
 
     def login(self, email: str, password: str):
         """Dispatches an asynchronous login POST to the OAuth2 form endpoint."""
@@ -116,15 +116,15 @@ class ApiClient(QObject):
                     self.fetch_profile()
                 except Exception as e:
                     self.login_error.emit(
-                        f"Failed to parse token from server: {e}")
+                        f"[ERR_AUTH_01] Error al parsear el token: {e}")
             else:
                 try:
                     res_text = reply.readAll().data().decode('utf-8')
                     body = json.loads(res_text)
-                    self.login_error.emit(self._parse_error(body))
+                    self.login_error.emit(self._parse_error(body, "ERR_AUTH_02"))
                 except Exception:
                     self.login_error.emit(
-                        "No se pudo conectar al servidor backend.")
+                        "[ERR_NET_01] No se pudo conectar al servidor backend.")
 
         reply.finished.connect(handle_reply)
 
@@ -148,22 +148,22 @@ class ApiClient(QObject):
                     body = json.loads(res_text)
                     self.register_success.emit(body)
                 except Exception:
-                    self.register_error.emit("Error de parseo del servidor.")
+                    self.register_error.emit("[ERR_SRV_01] Error de parseo del servidor.")
             else:
                 try:
                     res_text = reply.readAll().data().decode('utf-8')
                     body = json.loads(res_text)
-                    self.register_error.emit(self._parse_error(body))
+                    self.register_error.emit(self._parse_error(body, "ERR_API_01"))
                 except Exception:
                     self.register_error.emit(
-                        "No se pudo conectar al servidor backend.")
+                        "[ERR_NET_01] No se pudo conectar al servidor backend.")
 
         reply.finished.connect(handle_reply)
 
     def fetch_profile(self):
         """Asynchronously triggers a GET request to /users/me using the accumulated local token."""
         if not self.token:
-            self.profile_error.emit("No token available.")
+            self.profile_error.emit("[ERR_AUTH_03] Sesión no iniciada.")
             return
 
         request = self._create_json_request("/users/me")
@@ -178,10 +178,10 @@ class ApiClient(QObject):
                     self.profile_success.emit(body)
                 except Exception:
                     self.profile_error.emit(
-                        "Failed to parse profile response from server.")
+                        "[ERR_SRV_02] Error al parsear información del perfil.")
             else:
                 self.profile_error.emit(
-                    "Fallo al obtener información de sesión.")
+                    "[ERR_NET_02] Fallo al obtener información de sesión.")
 
         reply.finished.connect(handle_reply)
 
@@ -189,7 +189,7 @@ class ApiClient(QObject):
         """Asynchronously triggers a PUT request to /users/me/password to update credentials."""
         if not self.token:
             self.change_password_error.emit(
-                "Sesión no iniciada. No se pudo hacer el cambio.")
+                "[ERR_AUTH_03] Sesión no iniciada. No se pudo hacer el cambio.")
             return
 
         request = self._create_json_request("/users/me/password")
@@ -217,10 +217,10 @@ class ApiClient(QObject):
                 try:
                     res_text = reply.readAll().data().decode('utf-8')
                     body = json.loads(res_text)
-                    self.change_password_error.emit(self._parse_error(body))
+                    self.change_password_error.emit(self._parse_error(body, "ERR_API_02"))
                 except Exception:
                     self.change_password_error.emit(
-                        "Error de red al intentar actualizar la contraseña.")
+                        "[ERR_NET_03] Error de red al intentar actualizar la contraseña.")
 
         reply.finished.connect(handle_reply)
 
@@ -247,10 +247,10 @@ class ApiClient(QObject):
                 try:
                     res_text = reply.readAll().data().decode('utf-8')
                     body = json.loads(res_text)
-                    self.forgot_password_error.emit(self._parse_error(body))
+                    self.forgot_password_error.emit(self._parse_error(body, "ERR_API_03"))
                 except Exception:
                     self.forgot_password_error.emit(
-                        "Error de red al intentar recuperar contraseña.")
+                        "[ERR_NET_04] Error de red al intentar recuperar contraseña.")
 
         reply.finished.connect(handle_reply)
 
@@ -281,10 +281,10 @@ class ApiClient(QObject):
                 try:
                     res_text = reply.readAll().data().decode('utf-8')
                     body = json.loads(res_text)
-                    self.reset_password_error.emit(self._parse_error(body))
+                    self.reset_password_error.emit(self._parse_error(body, "ERR_API_04"))
                 except Exception:
                     self.reset_password_error.emit(
-                        "Error de red al intentar restablecer contraseña.")
+                        "[ERR_NET_05] Error de red al intentar restablecer contraseña.")
 
         reply.finished.connect(handle_reply)
 
@@ -292,7 +292,7 @@ class ApiClient(QObject):
         """Asynchronously triggers a POST request to /reports/upload with a Multipart PDF file."""
         if not self.token:
             self.upload_report_error.emit(
-                "Sesión no iniciada. No se puede subir el archivo.")
+                "[ERR_AUTH_03] Sesión no iniciada. No se puede subir el archivo.")
             return
 
         url = QUrl(f"{self.base_url}/reports/upload")
@@ -306,7 +306,7 @@ class ApiClient(QObject):
         file = QFile(filepath)
         if not file.open(QFile.OpenModeFlag.ReadOnly):
             self.upload_report_error.emit(
-                "No se pudo abrir el reporte localmente para subida.")
+                "[ERR_IO_01] No se pudo abrir el reporte localmente para subida.")
             return
 
         file_part = QHttpPart()
@@ -337,22 +337,22 @@ class ApiClient(QObject):
                     self.upload_report_success.emit(body)
                 except Exception:
                     self.upload_report_error.emit(
-                        "Error de guardado en base de datos servidor.")
+                        "[ERR_SRV_03] Error de parseo en la respuesta del servidor.")
             else:
                 try:
                     res_text = reply.readAll().data().decode('utf-8')
                     body = json.loads(res_text)
-                    self.upload_report_error.emit(self._parse_error(body))
+                    self.upload_report_error.emit(self._parse_error(body, "ERR_API_05"))
                 except Exception:
                     self.upload_report_error.emit(
-                        "Error de red al intentar subir archivo a GCS.")
+                        "[ERR_NET_06] Error de red al intentar subir archivo.")
 
         reply.finished.connect(handle_reply)
 
     def fetch_history(self):
         """Asynchronously triggers a GET request to /reports/."""
         if not self.token:
-            self.history_error.emit("Sesión no iniciada.")
+            self.history_error.emit("[ERR_AUTH_03] Sesión no iniciada.")
             return
 
         request = self._create_json_request("/reports/")
@@ -367,17 +367,17 @@ class ApiClient(QObject):
                     self.history_success.emit(body)
                 except Exception:
                     self.history_error.emit(
-                        "Error al parsear el historial desde el servidor.")
+                        "[ERR_SRV_04] Error al parsear el historial desde el servidor.")
             else:
                 self.history_error.emit(
-                    "Fallo de red al intentar descargar el historial.")
+                    "[ERR_NET_07] Fallo de red al intentar descargar el historial.")
 
         reply.finished.connect(handle_reply)
 
     def download_report(self, report_id: str, out_file: str):
         """Asynchronously pulls raw bytes from API proxy to bypass GCS permissions."""
         if not self.token:
-            self.download_report_error.emit("Sesión no iniciada.")
+            self.download_report_error.emit("[ERR_AUTH_03] Sesión no iniciada.")
             return
 
         request = self._create_json_request(f"/reports/{report_id}/download")
@@ -393,17 +393,17 @@ class ApiClient(QObject):
                     self.download_report_success.emit(out_file)
                 except Exception:
                     self.download_report_error.emit(
-                        "No se pudo escribir el archivo en tu sistema de archivos.")
+                        "[ERR_IO_02] No se pudo escribir el archivo en tu sistema de archivos.")
             else:
                 self.download_report_error.emit(
-                    "Fallo de red al intentar descargar el reporte desde la nube.")
+                    "[ERR_NET_08] Fallo de red al intentar descargar el reporte.")
 
         reply.finished.connect(handle_reply)
 
     def delete_report(self, report_id: str):
         """Asynchronously triggers a DELETE request to /reports/{report_id} to remove the report metadata."""
         if not self.token:
-            self.delete_report_error.emit("Sesión no iniciada. No se puede eliminar.")
+            self.delete_report_error.emit("[ERR_AUTH_03] Sesión no iniciada. No se puede eliminar.")
             return
 
         request = self._create_json_request(f"/reports/{report_id}")
@@ -417,8 +417,8 @@ class ApiClient(QObject):
                 try:
                     res_text = reply.readAll().data().decode('utf-8')
                     body = json.loads(res_text)
-                    self.delete_report_error.emit(self._parse_error(body))
+                    self.delete_report_error.emit(self._parse_error(body, "ERR_API_06"))
                 except Exception:
-                    self.delete_report_error.emit("Fallo de red al intentar eliminar el reporte desde el servidor.")
+                    self.delete_report_error.emit("[ERR_NET_09] Fallo de red al intentar eliminar el reporte.")
 
         reply.finished.connect(handle_reply)

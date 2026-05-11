@@ -82,18 +82,22 @@ class DashboardView(QWidget):
         top_actions_layout.setSpacing(15)
         
         btn_add_tasks = QPushButton("Agregar tareas")
+        btn_add_tasks.setObjectName("btnAddTasks")
         btn_add_tasks.setProperty("class", "TopActionButton")
         btn_add_tasks.clicked.connect(self.go_to_add_tasks.emit)
         
-        btn_edit_tasks = QPushButton("Editar Tareas")
+        btn_edit_tasks = QPushButton("Editar tareas")
+        btn_edit_tasks.setObjectName("btnEditTasks")
         btn_edit_tasks.setProperty("class", "TopActionButton")
         btn_edit_tasks.clicked.connect(self.go_to_edit_tasks.emit)
         
         btn_register = QPushButton("Registrar participante")
+        btn_register.setObjectName("btnRegisterParticipant")
         btn_register.setProperty("class", "TopActionButton")
         btn_register.clicked.connect(self.go_to_register_participant.emit)
         
         btn_repeat_test = QPushButton("Repetir configuración de prueba")
+        btn_repeat_test.setObjectName("btnRepeatTest")
         btn_repeat_test.setProperty("class", "TopActionButton")
         btn_repeat_test.clicked.connect(self.go_to_load_test.emit)
         
@@ -138,6 +142,7 @@ class DashboardView(QWidget):
         lbl_camera.setStyleSheet("color: #7E38B7; font-weight: bold; font-size: 13px;")
         
         self.camera_selector = QComboBox()
+        self.camera_selector.setObjectName("comboCameraSelector")
         plus_icon_path = os.path.join(icons_dir, "plus.svg").replace("\\", "/")
         self.camera_selector.setStyleSheet(f"""
             QComboBox {{
@@ -174,13 +179,15 @@ class DashboardView(QWidget):
         self.camera_selector.setMinimumWidth(250)
         self.populate_cameras()
         
-        self.btn_start_analysis = QPushButton(" Iniciar análisis")
+        self.btn_start_analysis = QPushButton("Iniciar análisis")
+        self.btn_start_analysis.setObjectName("btnStartAnalysis")
         icon_play = QIcon(os.path.join(icons_dir, "play.png"))
         self.btn_start_analysis.setIcon(icon_play)
         self.btn_start_analysis.setProperty("class", "AnalysisButton")
         self.btn_start_analysis.clicked.connect(self.start_camera)
         
-        self.btn_stop_analysis = QPushButton(" Detener Análisis")
+        self.btn_stop_analysis = QPushButton("Detener análisis")
+        self.btn_stop_analysis.setObjectName("btnStopAnalysis")
         icon_pause = QIcon(os.path.join(icons_dir, "pausa.png"))
         self.btn_stop_analysis.setIcon(icon_pause)
         self.btn_stop_analysis.setProperty("class", "AnalysisButton")

@@ -22,6 +22,7 @@ class LoginView(QWidget):
         # Back button row
         back_layout = QHBoxLayout()
         self.btn_back = QPushButton("← Regresar")
+        self.btn_back.setObjectName("btnBack")
         self.btn_back.setProperty("class", "BackButton")
         self.btn_back.setCursor(Qt.CursorShape.PointingHandCursor)
         self.btn_back.clicked.connect(self.go_back.emit)
@@ -55,6 +56,7 @@ class LoginView(QWidget):
         cf_layout.addWidget(lbl_email)
         
         self.input_email = QLineEdit()
+        self.input_email.setObjectName("inputEmail")
         self.input_email.setFixedHeight(35)
         cf_layout.addWidget(self.input_email)
         
@@ -68,10 +70,12 @@ class LoginView(QWidget):
         pwd_layout = QHBoxLayout()
         pwd_layout.setSpacing(5)
         self.input_password = QLineEdit()
+        self.input_password.setObjectName("inputPassword")
         self.input_password.setFixedHeight(35)
         self.input_password.setEchoMode(QLineEdit.EchoMode.Password)
         
         btn_eye = QPushButton()
+        btn_eye.setObjectName("btnTogglePassword")
         btn_eye.setIcon(QIcon("src/emova/client/gui/assets/images/eye.svg"))
         btn_eye.setIconSize(QSize(24, 24))
         btn_eye.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -103,6 +107,7 @@ class LoginView(QWidget):
         
         # Submit Button
         btn_submit = QPushButton("Ingresar")
+        btn_submit.setObjectName("btnLoginSubmit")
         btn_submit.setProperty("class", "DialogButton")
         btn_submit.setCursor(Qt.CursorShape.PointingHandCursor)
         btn_submit.setFixedHeight(35)
@@ -111,6 +116,7 @@ class LoginView(QWidget):
         
         # Error Label
         self.lbl_error = QLabel("")
+        self.lbl_error.setObjectName("lblLoginError")
         self.lbl_error.setStyleSheet("color: #8C1C13; font-size: 14px; font-weight: bold;") 
         self.lbl_error.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lbl_error.hide()
@@ -125,7 +131,7 @@ class LoginView(QWidget):
                 self.lbl_error.show()
                 return
             self.btn_submit.setEnabled(False)
-            self.btn_submit.setText("Cargando...")
+            self.btn_submit.setText("Autenticando...")
             self.api_client.login(email, pwd)
             
         btn_submit.clicked.connect(handle_login_click)
@@ -140,6 +146,7 @@ class LoginView(QWidget):
         
         # Forgot Password Link
         btn_forgot = QPushButton("Olvide mi contraseña")
+        btn_forgot.setObjectName("btnForgotPassword")
         btn_forgot.setStyleSheet("border: none; background: transparent; color: #666666; font-size: 14px; font-weight: bold; text-decoration: none;")
         btn_forgot.setCursor(Qt.CursorShape.PointingHandCursor)
         btn_forgot.clicked.connect(self.go_to_recovery.emit)
@@ -159,6 +166,7 @@ class LoginView(QWidget):
         cf_layout.addWidget(lbl_no_account)
         
         btn_register = QPushButton("Registrate")
+        btn_register.setObjectName("btnRegister")
         btn_register.setStyleSheet("border: none; background: transparent; color: #7b2cbf; font-size: 16px; font-weight: bold;")
         btn_register.setCursor(Qt.CursorShape.PointingHandCursor)
         btn_register.clicked.connect(self.go_to_register.emit)
