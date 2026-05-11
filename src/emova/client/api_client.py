@@ -60,7 +60,8 @@ class ApiClient(QObject):
     def __init__(self):
         super().__init__()
         self.manager = QNetworkAccessManager(self)
-        self.base_url = "http://127.0.0.1:8000"
+        # Apuntando a tu nueva API en Producción (Google Cloud Run)
+        self.base_url = "https://emova-api-490638015196.us-central1.run.app"
 
         # Persistencia en Disco / Registro nativo
         self.settings = QSettings("EMOVA", "EmovaClient")
