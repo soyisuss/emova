@@ -29,6 +29,12 @@ class StorageManager:
                     )
                 except Exception as e:
                     logger.error(f"Error initializing Google Cloud Storage client: {e}")
+            elif settings.GCS_BUCKET_NAME:
+                try:
+                    # Fallback to default credentials (ideal for Cloud Run)
+                    cls._client = storage.Client(project=settings.GCP_PROJECT_ID)
+                except Exception as e:
+                    logger.error(f"Error initializing default GCS client: {e}")
         return cls._client
         
     @classmethod
