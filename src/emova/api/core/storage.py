@@ -20,21 +20,18 @@ class StorageManager:
     def get_client(cls):
         """Singleton pattern for initializing the Storage client only once."""
         if cls._client is None:
-            if settings.GCS_BUCKET_NAME and settings.GOOGLE_APPLICATION_CREDENTIALS:
-                try:
-                    # Explicitly pass the path from Settings as Python environment variables might not carry it implicitly
+            try:
+                if settings.GOOGLE_APPLICATION_CREDENTIALS:
+                    # Uso local: cargar desde el archivo JSON si existe la variable
                     cls._client = storage.Client.from_service_account_json(
                         json_credentials_path=settings.GOOGLE_APPLICATION_CREDENTIALS,
                         project=settings.GCP_PROJECT_ID
                     )
-                except Exception as e:
-                    logger.error(f"Error initializing Google Cloud Storage client: {e}")
-            elif settings.GCS_BUCKET_NAME:
-                try:
-                    # Fallback to default credentials (ideal for Cloud Run)
+                else:
+                    # Uso en Producción (Cloud Run): Autenticación nativa e invisible de GCP
                     cls._client = storage.Client(project=settings.GCP_PROJECT_ID)
-                except Exception as e:
-                    logger.error(f"Error initializing default GCS client: {e}")
+            except Exception as e:
+                logger.error(f"Error initializing Google Cloud Storage client: {e}")
         return cls._client
         
     @classmethod
