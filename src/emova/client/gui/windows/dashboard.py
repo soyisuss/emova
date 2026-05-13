@@ -116,7 +116,8 @@ class DashboardView(QWidget):
         self.video_player = VideoPlayer()
         
         # Task Overlay (Flotante)
-        self.task_overlay = TaskOverlay(self.central_video_container)
+        # Parent is self (DashboardView) so it doesn't get clipped by the video container
+        self.task_overlay = TaskOverlay(self)
         self.task_overlay.hide() # Hidden by default
         self.task_overlay.task_started.connect(self.handle_task_started)
         self.task_overlay.task_completed.connect(self.handle_task_completed)
@@ -198,9 +199,14 @@ class DashboardView(QWidget):
         
         camera_layout.addWidget(lbl_camera)
         camera_layout.addWidget(self.camera_selector)
+        
         bottom_actions_layout.addLayout(camera_layout)
         bottom_actions_layout.addSpacing(10)
-        bottom_actions_layout.addWidget(self.btn_start_analysis)
+        
+        start_layout = QVBoxLayout()
+        start_layout.addWidget(self.btn_start_analysis)
+        
+        bottom_actions_layout.addLayout(start_layout)
         bottom_actions_layout.addSpacing(20)
         bottom_actions_layout.addWidget(self.btn_stop_analysis)
         bottom_actions_layout.addStretch()
@@ -260,10 +266,10 @@ class DashboardView(QWidget):
             self.task_overlay.show()
             self.task_overlay.raise_()
             
-            # Centrar el widget flotante manualmente relativo a su contenedor padre
-            parent_rect = self.central_video_container.rect()
-            x = (parent_rect.width() - self.task_overlay.width()) // 2
-            y = (parent_rect.height() - self.task_overlay.height()) // 2
+            # Centrar el widget flotante respecto al central_video_container, pero relativo a self
+            video_rect = self.central_video_container.geometry()
+            x = video_rect.x() + (video_rect.width() - self.task_overlay.width()) // 2
+            y = video_rect.y() + (video_rect.height() - self.task_overlay.height()) // 2
             self.task_overlay.move(max(0, x), max(0, y))
             
             # Time tracking starts when user clicks 'Iniciar Tarea' in handle_task_started

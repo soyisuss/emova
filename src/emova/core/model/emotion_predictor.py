@@ -2,9 +2,13 @@ import os
 import numpy as np
 import onnxruntime as ort
 
-# Resolvemos la ruta a la raíz del proyecto para evitar errores si el cwd cambia
-PROJECT_ROOT = os.path.abspath(os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", ".."))
+import sys
+if getattr(sys, 'frozen', False):
+    PROJECT_ROOT = sys._MEIPASS
+else:
+    PROJECT_ROOT = os.path.abspath(os.path.join(
+        os.path.dirname(__file__), "..", "..", "..", ".."))
+
 MODEL_PATH = os.path.join(PROJECT_ROOT, "models", "resnet50_emotion.onnx")
 
 

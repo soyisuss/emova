@@ -9,21 +9,23 @@ class CustomDialog(QDialog):
         super().__init__(parent)
         self.setObjectName("PrivacyDialog") # Reusing the clean white container styling
         
-        # We can dynamically size the dialog based on the amount of text if needed,
-        # but a fixed size keeps it consistent with the Privacy Notice.
-        self.setFixedSize(500, 300)
+        # Make it more compact and dynamic
+        self.setMinimumWidth(350)
+        self.setMaximumWidth(450)
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.Dialog)
         
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(40, 40, 40, 40)
-        layout.setSpacing(20)
+        layout.setContentsMargins(25, 25, 25, 25)
+        layout.setSpacing(15)
         
         lbl_title = QLabel(title)
         lbl_title.setObjectName("PrivacyTitle") # Reusing the purple bold styling
+        lbl_title.setStyleSheet("font-size: 20px; font-weight: bold; color: #7E38B7;")
         lbl_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
         lbl_msg = QLabel(message)
         lbl_msg.setObjectName("PrivacyText") # Reusing the black bold text styling
+        lbl_msg.setStyleSheet("font-size: 16px; color: #333;")
         lbl_msg.setWordWrap(True)
         lbl_msg.setAlignment(Qt.AlignmentFlag.AlignCenter)
         

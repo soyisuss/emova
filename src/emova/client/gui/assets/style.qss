@@ -72,6 +72,7 @@ QPushButton.SidebarButton:hover {
 
 QLabel.SidebarLabel {
     font-size: 14px;
+    font-weight: bold;
     color: #555555;
     margin-bottom: 6px;
 }
@@ -80,10 +81,10 @@ QLabel.SidebarLabel {
 QPushButton.TopActionButton {
     background-color: #7E38B7;
     color: white;
-    border-radius: 8px;
-    padding: 12px 18px;
-    font-size: 16px;
-    font-weight: 500;
+    border-radius: 10px;
+    padding: 14px 22px;
+    font-size: 18px;
+    font-weight: bold;
     border: none;
 }
 
@@ -95,9 +96,9 @@ QPushButton.TopActionButton:hover {
 QPushButton.AnalysisButton {
     background-color: #7E38B7;
     color: white;
-    border-radius: 8px;
-    padding: 15px 25px;
-    font-size: 18px;
+    border-radius: 10px;
+    padding: 18px 30px;
+    font-size: 20px;
     font-weight: bold;
     border: none;
 }
@@ -155,8 +156,8 @@ QPushButton.DialogButton {
     background-color: #7E38B7;
     color: white;
     border-radius: 8px;
-    padding: 8px 25px;
-    font-size: 16px;
+    padding: 10px 25px;
+    font-size: 18px;
     font-weight: bold;
     border: none;
 }
@@ -166,24 +167,24 @@ QPushButton.DialogButton:hover {
 }
 
 /* Inputs and Forms */
-QLineEdit {
+QLineEdit, QComboBox {
     border: 2px solid #333333;
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 18px;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 20px;
     background-color: white;
     color: #333333;
 }
 
-QLineEdit:focus {
+QLineEdit:focus, QComboBox:focus {
     border: 2px solid #7E38B7;
 }
 
 QTextEdit {
     border: 2px solid #333333;
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 18px;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 20px;
     background-color: white;
     color: #333333;
 }

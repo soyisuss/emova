@@ -80,8 +80,6 @@ class PasswordRecoveryView(QWidget):
         cf_layout.addWidget(lbl_email)
         
         self.input_email = QLineEdit()
-        self.input_email.setFixedHeight(45)
-        self.input_email.setStyleSheet("padding: 5px; font-size: 16px;")
         cf_layout.addWidget(self.input_email)
         
         cf_layout.addSpacing(15)
@@ -97,7 +95,6 @@ class PasswordRecoveryView(QWidget):
         self.btn_request = QPushButton("Enviar código")
         self.btn_request.setProperty("class", "DialogButton")
         self.btn_request.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.btn_request.setFixedHeight(35)
         self.btn_request.setMinimumWidth(200)
         self.btn_request.clicked.connect(self._handle_request)
         
@@ -138,7 +135,6 @@ class PasswordRecoveryView(QWidget):
         cf_layout.addWidget(lbl_code)
         
         self.input_code = QLineEdit()
-        self.input_code.setFixedHeight(35)
         cf_layout.addWidget(self.input_code)
         cf_layout.addSpacing(5)
         
@@ -149,7 +145,6 @@ class PasswordRecoveryView(QWidget):
         pwd_layout = QHBoxLayout()
         pwd_layout.setSpacing(5)
         self.input_new = QLineEdit()
-        self.input_new.setFixedHeight(35)
         self.input_new.setEchoMode(QLineEdit.EchoMode.Password)
         
         btn_eye = QPushButton()
@@ -204,7 +199,6 @@ class PasswordRecoveryView(QWidget):
         confirm_layout = QHBoxLayout()
         confirm_layout.setSpacing(5)
         self.input_confirm = QLineEdit()
-        self.input_confirm.setFixedHeight(35)
         self.input_confirm.setEchoMode(QLineEdit.EchoMode.Password)
         
         btn_eye_confirm = QPushButton()
@@ -250,7 +244,6 @@ class PasswordRecoveryView(QWidget):
         self.btn_reset = QPushButton("Cambiar contraseña")
         self.btn_reset.setProperty("class", "DialogButton")
         self.btn_reset.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.btn_reset.setFixedHeight(35)
         self.btn_reset.setMinimumWidth(200)
         self.btn_reset.clicked.connect(self._handle_reset)
         

@@ -14,9 +14,11 @@ class SessionManager:
         """Clear all active session data starting fresh."""
         self.test_id = "PU-01"
         try:
-            token = ApiClient.get_instance().token
+            api_client = ApiClient.get_instance()
+            token = api_client.token
             headers = {"Authorization": f"Bearer {token}"} if token else {}
-            resp = httpx.get("http://127.0.0.1:8000/tests/templates/", headers=headers, timeout=2.0)
+            base_url = api_client.base_url
+            resp = httpx.get(f"{base_url}/tests/templates/", headers=headers, timeout=2.0)
             if resp.status_code == 200:
                 templates = resp.json()
                 if templates:

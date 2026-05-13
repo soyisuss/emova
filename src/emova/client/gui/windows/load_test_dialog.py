@@ -75,9 +75,10 @@ class LoadTestDialog(QDialog):
         
         try:
             # Reemplazar por url de la api centralizada en settings en un entorno productivo
-            base_url = "http://127.0.0.1:8000"
             from emova.client.api_client import ApiClient
-            token = ApiClient.get_instance().token
+            api_client = ApiClient.get_instance()
+            base_url = api_client.base_url
+            token = api_client.token
             headers = {"Authorization": f"Bearer {token}"} if token else {}
             response = httpx.get(f"{base_url}/tests/templates", headers=headers, timeout=5.0)
             if response.status_code == 200:

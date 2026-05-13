@@ -7,6 +7,7 @@ from PySide6.QtCore import Qt, Signal
 from datetime import datetime
 
 from emova.core.session.session_manager import session_manager
+from emova.client.gui.components.custom_dialog import CustomDialog
 
 class LoadTestView(QWidget):
     go_back = Signal() # Signal to return to dashboard
@@ -125,9 +126,10 @@ class LoadTestView(QWidget):
         QApplication.processEvents()
         
         try:
-            base_url = "http://127.0.0.1:8000"
             from emova.client.api_client import ApiClient
-            token = ApiClient.get_instance().token
+            api_client = ApiClient.get_instance()
+            base_url = api_client.base_url
+            token = api_client.token
             headers = {"Authorization": f"Bearer {token}"} if token else {}
             response = httpx.get(f"{base_url}/tests/templates/", headers=headers, timeout=5.0)
             if response.status_code == 200:
@@ -273,9 +275,10 @@ class LoadTestView(QWidget):
         
         if msg_box.clickedButton() == btn_si:
             try:
-                base_url = "http://127.0.0.1:8000"
                 from emova.client.api_client import ApiClient
-                token = ApiClient.get_instance().token
+                api_client = ApiClient.get_instance()
+                base_url = api_client.base_url
+                token = api_client.token
                 headers = {"Authorization": f"Bearer {token}"} if token else {}
                 response = httpx.delete(f"{base_url}/tests/templates/{template_id}", headers=headers, timeout=5.0)
                 if response.status_code == 204:
@@ -332,18 +335,24 @@ class LoadTestView(QWidget):
             
         # Registrar como una nueva prueba en la base de datos
         try:
-            base_url = "http://127.0.0.1:8000"
+            from emova.client.api_client import ApiClient
+            api_client = ApiClient.get_instance()
+            base_url = api_client.base_url
             payload = {
                 "test_id": session_manager.test_id,
                 "name": f"Prueba #{session_manager.test_id} ({datetime.now().strftime('%d/%m/%Y %H:%M')})",
                 "tasks": session_manager.tasks
             }
-            from emova.client.api_client import ApiClient
-            token = ApiClient.get_instance().token
+            token = api_client.token
             headers = {"Authorization": f"Bearer {token}"} if token else {}
             httpx.post(f"{base_url}/tests/templates/", json=payload, headers=headers, timeout=3.0)
         except Exception as e:
             print(f"Aviso: No se pudo registrar la nueva copia en la BD. Detalles: {e}")
             
-        QMessageBox.information(self, "Configuración Lista", f"Se ha preparado exitosamente la nueva Prueba #{session_manager.test_id} cargando {len(tasks)} tareas. Ya puedes continuar con el registro.")
+        dialog = CustomDialog(
+            parent=self.window(),
+            title="Configuración Lista",
+            message=f"Se ha preparado exitosamente la nueva Prueba #{session_manager.test_id} cargando {len(tasks)} tareas. Ya puedes continuar con el registro."
+        )
+        dialog.exec()
         self.go_back.emit()

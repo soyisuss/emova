@@ -57,7 +57,6 @@ class LoginView(QWidget):
         
         self.input_email = QLineEdit()
         self.input_email.setObjectName("inputEmail")
-        self.input_email.setFixedHeight(35)
         cf_layout.addWidget(self.input_email)
         
         cf_layout.addSpacing(5)
@@ -71,7 +70,6 @@ class LoginView(QWidget):
         pwd_layout.setSpacing(5)
         self.input_password = QLineEdit()
         self.input_password.setObjectName("inputPassword")
-        self.input_password.setFixedHeight(35)
         self.input_password.setEchoMode(QLineEdit.EchoMode.Password)
         
         btn_eye = QPushButton()
@@ -79,7 +77,7 @@ class LoginView(QWidget):
         btn_eye.setIcon(QIcon("src/emova/client/gui/assets/images/eye.svg"))
         btn_eye.setIconSize(QSize(24, 24))
         btn_eye.setCursor(Qt.CursorShape.PointingHandCursor)
-        btn_eye.setFixedSize(35, 35)
+        btn_eye.setFixedSize(40, 40)
         btn_eye.setStyleSheet("background-color: transparent; border: none;")
         
         def toggle_pwd():
@@ -110,7 +108,6 @@ class LoginView(QWidget):
         btn_submit.setObjectName("btnLoginSubmit")
         btn_submit.setProperty("class", "DialogButton")
         btn_submit.setCursor(Qt.CursorShape.PointingHandCursor)
-        btn_submit.setFixedHeight(35)
         btn_submit.setMinimumWidth(200)
         self.btn_submit = btn_submit
         

@@ -55,7 +55,6 @@ class PasswordChangeView(QWidget):
         current_layout = QHBoxLayout()
         current_layout.setSpacing(5)
         self.input_current = QLineEdit()
-        self.input_current.setFixedHeight(35)
         self.input_current.setEchoMode(QLineEdit.EchoMode.Password)
         
         btn_eye_current = QPushButton()
@@ -89,7 +88,6 @@ class PasswordChangeView(QWidget):
         pwd_layout = QHBoxLayout()
         pwd_layout.setSpacing(5)
         self.input_new = QLineEdit()
-        self.input_new.setFixedHeight(35)
         self.input_new.setEchoMode(QLineEdit.EchoMode.Password)
         
         btn_eye = QPushButton()
@@ -148,7 +146,6 @@ class PasswordChangeView(QWidget):
         confirm_layout = QHBoxLayout()
         confirm_layout.setSpacing(5)
         self.input_confirm = QLineEdit()
-        self.input_confirm.setFixedHeight(35)
         self.input_confirm.setEchoMode(QLineEdit.EchoMode.Password)
         
         btn_eye_confirm = QPushButton()
@@ -201,7 +198,6 @@ class PasswordChangeView(QWidget):
         btn_submit = QPushButton("Actualizar")
         btn_submit.setProperty("class", "DialogButton") # Reusing similar styling
         btn_submit.setCursor(Qt.CursorShape.PointingHandCursor)
-        btn_submit.setFixedHeight(35)
         btn_submit.setMinimumWidth(200)
         self.btn_submit = btn_submit
         def handle_submit():

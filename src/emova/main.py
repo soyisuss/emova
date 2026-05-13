@@ -12,9 +12,10 @@ from emova.client.gui.main_window import MainWindow
 def main():
     app = QApplication(sys.argv)
 
-    # Load stylesheet
-    style_path = os.path.join(os.path.dirname(
-        __file__), "client", "gui", "assets", "style.qss")
+    if getattr(sys, 'frozen', False):
+        style_path = os.path.join(sys._MEIPASS, "emova", "client", "gui", "assets", "style.qss")
+    else:
+        style_path = os.path.join(os.path.dirname(__file__), "client", "gui", "assets", "style.qss")
     if os.path.exists(style_path):
         with open(style_path, "r", encoding="utf-8") as f:
             app.setStyleSheet(f.read())

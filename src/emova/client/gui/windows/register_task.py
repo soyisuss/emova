@@ -247,14 +247,15 @@ class RegisterTaskView(QWidget):
             if not alias:
                 alias = f"Prueba #{session_manager.test_id} ({datetime.now().strftime('%d/%m/%Y %H:%M')})"
                 
-            base_url = "http://127.0.0.1:8000"
+            from emova.client.api_client import ApiClient
+            api_client = ApiClient.get_instance()
+            base_url = api_client.base_url
             payload = {
                 "test_id": session_manager.test_id,
                 "name": alias,
                 "tasks": session_manager.tasks
             }
-            from emova.client.api_client import ApiClient
-            token = ApiClient.get_instance().token
+            token = api_client.token
             headers = {"Authorization": f"Bearer {token}"} if token else {}
             httpx.post(f"{base_url}/tests/templates/", json=payload, headers=headers, timeout=3.0)
         except Exception as e:

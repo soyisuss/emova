@@ -24,8 +24,8 @@ class VideoPlayer(QWidget):
         self.video_frame.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.video_frame.setStyleSheet("background-color: #3D404A; border-radius: 4px;")
         
-        self.placeholder_text = QLabel("Iniciando cámara...")
-        self.placeholder_text.setStyleSheet("color: white; font-size: 18px;")
+        self.placeholder_text = QLabel("Bienvenido a EMOVA\n\n1. Seleccione una cámara en el panel inferior.\n2. Presione 'Iniciar análisis'.\n3. Siga las instrucciones de las tareas.")
+        self.placeholder_text.setStyleSheet("color: white; font-size: 20px; font-weight: bold;")
         self.placeholder_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
         # We will stack them or just replace the text
@@ -86,8 +86,8 @@ class VideoPlayer(QWidget):
         
         self.is_stopped = False
         # Reset placeholder text
-        self.placeholder_text.setStyleSheet("color: white; font-size: 18px; background-color: transparent;")
-        self.placeholder_text.setText("Iniciando cámara...")
+        self.placeholder_text.setStyleSheet("color: white; font-size: 20px; background-color: transparent; font-weight: bold;")
+        self.placeholder_text.setText("Bienvenido a EMOVA\n\n1. Seleccione una cámara en el panel inferior.\n2. Presione 'Iniciar análisis'.\n3. Siga las instrucciones de las tareas.")
         self.video_frame.hide()
         self.placeholder_text.show()
 

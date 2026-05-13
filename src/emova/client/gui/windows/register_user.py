@@ -53,7 +53,6 @@ class RegisterUserView(QWidget):
         cf_layout.addWidget(lbl_email)
         
         self.input_email = QLineEdit()
-        self.input_email.setFixedHeight(35)
         cf_layout.addWidget(self.input_email)
         
         cf_layout.addSpacing(5)
@@ -66,14 +65,13 @@ class RegisterUserView(QWidget):
         pwd_layout = QHBoxLayout()
         pwd_layout.setSpacing(5)
         self.input_password = QLineEdit()
-        self.input_password.setFixedHeight(35)
         self.input_password.setEchoMode(QLineEdit.EchoMode.Password)
         
         btn_eye = QPushButton()
         btn_eye.setIcon(QIcon("src/emova/client/gui/assets/images/eye.svg"))
         btn_eye.setIconSize(QSize(24, 24))
         btn_eye.setCursor(Qt.CursorShape.PointingHandCursor)
-        btn_eye.setFixedSize(35, 35)
+        btn_eye.setFixedSize(40, 40)
         btn_eye.setStyleSheet("background-color: transparent; border: none;")
         
         def toggle_pwd():
@@ -125,14 +123,13 @@ class RegisterUserView(QWidget):
         confirm_layout = QHBoxLayout()
         confirm_layout.setSpacing(5)
         self.input_confirm = QLineEdit()
-        self.input_confirm.setFixedHeight(35)
         self.input_confirm.setEchoMode(QLineEdit.EchoMode.Password)
         
         btn_eye_confirm = QPushButton()
         btn_eye_confirm.setIcon(QIcon("src/emova/client/gui/assets/images/eye.svg"))
         btn_eye_confirm.setIconSize(QSize(24, 24))
         btn_eye_confirm.setCursor(Qt.CursorShape.PointingHandCursor)
-        btn_eye_confirm.setFixedSize(35, 35)
+        btn_eye_confirm.setFixedSize(40, 40)
         btn_eye_confirm.setStyleSheet("background-color: transparent; border: none;")
         
         def toggle_confirm_pwd():
@@ -181,7 +178,6 @@ class RegisterUserView(QWidget):
         btn_submit = QPushButton("Registrarse")
         btn_submit.setProperty("class", "DialogButton") # Reusing similar styling
         btn_submit.setCursor(Qt.CursorShape.PointingHandCursor)
-        btn_submit.setFixedHeight(35)
         btn_submit.setMinimumWidth(200)
         self.btn_submit = btn_submit
         

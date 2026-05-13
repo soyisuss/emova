@@ -53,15 +53,22 @@ class TaskOverlay(QFrame):
         content_layout.setContentsMargins(0, 0, 0, 0)
         
         self.desc_title = QLabel("Descripción:")
-        self.desc_title.setStyleSheet("font-weight: bold; font-size: 16px;")
+        self.desc_title.setStyleSheet("font-weight: bold; font-size: 18px;")
         
         self.desc_label = QTextEdit("...")
         self.desc_label.setReadOnly(True)
         self.desc_label.setFrameShape(QFrame.Shape.NoFrame)
-        self.desc_label.setStyleSheet("font-size: 16px; color: #333; background-color: transparent;")
+        self.desc_label.setStyleSheet("font-size: 18px; color: #333; background-color: transparent;")
+        
+        self.lbl_instruction = QLabel("Lee la tarea y presiona 'Iniciar Tarea'.\nCuando termines, presiona 'Completar Tarea'.")
+        self.lbl_instruction.setStyleSheet("color: #7E38B7; font-size: 16px; font-weight: bold; font-style: italic;")
+        self.lbl_instruction.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
         content_layout.addWidget(self.desc_title)
         content_layout.addWidget(self.desc_label, stretch=1)
+        content_layout.addSpacing(10)
+        content_layout.addWidget(self.lbl_instruction)
+        content_layout.addSpacing(10)
         
         btn_layout = QHBoxLayout()
         btn_layout.setSpacing(20)
@@ -150,14 +157,29 @@ class TaskOverlay(QFrame):
     def reset_state(self):
         self.state = "INIT"
         self.btn_action.setText("Iniciar Tarea")
-        self.btn_action.setStyleSheet("")
+        self.btn_action.setStyleSheet("") # Default class style
         if self.is_minimized:
             self.toggle_minimize()
         
     def handle_action_click(self):
         if self.state == "INIT":
             self.state = "STARTED"
-            self.btn_action.setText("Completar Tarea")
+            self.btn_action.setText("✓ Completar Tarea")
+            # Style the button green and more prominent
+            self.btn_action.setStyleSheet("""
+                QPushButton {
+                    background-color: #27AE60;
+                    color: white;
+                    border-radius: 8px;
+                    padding: 10px 25px;
+                    font-size: 18px;
+                    font-weight: bold;
+                    border: none;
+                }
+                QPushButton:hover {
+                    background-color: #219653;
+                }
+            """)
             self.task_started.emit()
             self.toggle_minimize() # Opcional: minimizar auto al iniciar la tarea
         elif self.state == "STARTED":

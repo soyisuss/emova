@@ -25,9 +25,13 @@ class CameraThread(QThread):
         # Por ej. a 3 FPS de extracción, juntará imágenes durante 1 segundo entero.
         self.batch_size = 3
 
-        # Inicializar pipeline de preprocesamiento usando rutas absolutas
-        project_root = os.path.abspath(os.path.join(
-            os.path.dirname(__file__), "..", "..", "..", ".."))
+        import sys
+        if getattr(sys, 'frozen', False):
+            project_root = sys._MEIPASS
+        else:
+            project_root = os.path.abspath(os.path.join(
+                os.path.dirname(__file__), "..", "..", "..", ".."))
+                
         proto = os.path.join(project_root, "models", "deploy.prototxt")
         model = os.path.join(project_root, "models",
                              "res10_300x300_ssd_iter_140000_fp16.caffemodel")
