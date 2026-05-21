@@ -112,11 +112,13 @@ async def forgot_password(
     # Send email
     try:
         await send_recovery_email(request.email, code)
-    except Exception:
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
         # Avoid crashing completely, but ideally handle log here
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to send recovery email."
+            detail=f"Failed to send recovery email. Error: {str(e)}"
         )
 
     return {"message": "If the email is registered, you will receive a recovery code."}
