@@ -5,7 +5,7 @@ google-cloud-storage>=3.9.0
 matplotlib
 motor>=3.7.1
 numpy
-onnxruntime>=1.24.3
+onnxruntime-gpu>=1.26.0
 opencv-python>=4.13.0.92
 pandas
 passlib[argon2]>=1.7.4
@@ -21,5 +21,7 @@ uvicorn[standard]>=0.41.0
 
 [dev]
 pytest
+pytest-asyncio
+httpx
 black
 ruff

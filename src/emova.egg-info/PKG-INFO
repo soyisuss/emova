@@ -2,7 +2,7 @@ Metadata-Version: 2.4
 Name: emova
 Version: 0.1.0
 Summary: Emotion Monitoring and Visual Analysis system
-Requires-Python: >=3.10
+Requires-Python: >=3.11
 Description-Content-Type: text/markdown
 Requires-Dist: email-validator>=2.1.1
 Requires-Dist: fastapi-mail>=1.6.2
@@ -11,7 +11,7 @@ Requires-Dist: google-cloud-storage>=3.9.0
 Requires-Dist: matplotlib
 Requires-Dist: motor>=3.7.1
 Requires-Dist: numpy
-Requires-Dist: onnxruntime>=1.24.3
+Requires-Dist: onnxruntime-gpu>=1.26.0
 Requires-Dist: opencv-python>=4.13.0.92
 Requires-Dist: pandas
 Requires-Dist: passlib[argon2]>=1.7.4
@@ -26,6 +26,8 @@ Requires-Dist: reportlab>=4.4.10
 Requires-Dist: uvicorn[standard]>=0.41.0
 Provides-Extra: dev
 Requires-Dist: pytest; extra == "dev"
+Requires-Dist: pytest-asyncio; extra == "dev"
+Requires-Dist: httpx; extra == "dev"
 Requires-Dist: black; extra == "dev"
 Requires-Dist: ruff; extra == "dev"
 

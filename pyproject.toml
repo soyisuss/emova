@@ -3,7 +3,7 @@ name = "emova"
 version = "0.1.0"
 description = "Emotion Monitoring and Visual Analysis system"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 
 dependencies = [
     "email-validator>=2.1.1",
@@ -13,7 +13,7 @@ dependencies = [
     "matplotlib",
     "motor>=3.7.1",
     "numpy",
-    "onnxruntime>=1.24.3",
+    "onnxruntime-gpu>=1.26.0",
     "opencv-python>=4.13.0.92",
     "pandas",
     "passlib[argon2]>=1.7.4",
@@ -31,6 +31,8 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest",
+    "pytest-asyncio",
+    "httpx",
     "black",
     "ruff"
 ]
@@ -48,4 +50,10 @@ where = ["src"]
 [dependency-groups]
 dev = [
     "pyinstaller>=6.20.0",
+    "pytest",
+    "pytest-asyncio",
+    "httpx",
+    "pytest-mock",
+    "pytest-html",
+    "pytest-cov"
 ]
