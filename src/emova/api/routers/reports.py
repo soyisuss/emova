@@ -1,8 +1,5 @@
 """
-Routes module for Reports management and creation.
-
-Maintains referential persistence to report files hosted
-physically in GCS and is related directly by the Session.
+Módulo de rutas para la gestión y creación de reportes.
 """
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Response, Form
 from motor.motor_asyncio import AsyncIOMotorDatabase
@@ -23,8 +20,8 @@ async def create_report(
     current_user: UserInDB = Depends(get_current_user),
     db: AsyncIOMotorDatabase = Depends(get_database)
 ):
-    """Creates the report record pointing to its physical/GCS paths."""
-    # Ensure the report is created for the current user
+    """Crea el registro del reporte apuntando a sus rutas físicas de GCS."""
+    # Asegurar que el reporte sea creado para el usuario actual
     if str(report.userId) != str(current_user.id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -46,18 +43,18 @@ async def upload_and_create_report(
     current_user: UserInDB = Depends(get_current_user),
     db: AsyncIOMotorDatabase = Depends(get_database)
 ):
-    """Submits a PDF file directly to GCS and persists the generated reference."""
+    """Sube un archivo PDF directamente a GCS y persiste la referencia."""
     if not file.filename.endswith(".pdf"):
         raise HTTPException(status_code=400, detail="El archivo subido debe ser formato PDF.")
         
     try:
         content = await file.read()
-        # Uploading using the asyncio-compatible StorageManager
+        # Subida utilizando el StorageManager asíncrono
         url = await StorageManager.upload_report_pdf(content, str(current_user.id), file.filename)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error subiendo el archivo a GCS: {str(e)}")
         
-    # Constructing a simulated ReportCreate dictionary payload with the new URL
+    # Construyendo una simulación del payload para crear el reporte
     doc_payload = {
         "reportUrl": url,
         "userId": current_user.id,
@@ -76,7 +73,7 @@ async def list_reports(
     current_user: UserInDB = Depends(get_current_user),
     db: AsyncIOMotorDatabase = Depends(get_database)
 ):
-    """Lists all historical reports related to this user."""
+    """Lista todos los reportes históricos del usuario."""
     cursor = db["reports"].find({"userId": str(current_user.id)})
     reports = await cursor.to_list(length=200)
     return [ReportResponse(**r) for r in reports]
@@ -87,7 +84,7 @@ async def read_report(
     current_user: UserInDB = Depends(get_current_user),
     db: AsyncIOMotorDatabase = Depends(get_database)
 ):
-    """Retrieves the signed URL to share from a concrete ID."""
+    """Recupera la URL firmada para compartir a partir de un ID concreto."""
     try:
          obj_id = ObjectId(report_id)
     except Exception:
@@ -105,7 +102,7 @@ async def download_report_bytes(
     current_user: UserInDB = Depends(get_current_user),
     db: AsyncIOMotorDatabase = Depends(get_database)
 ):
-    """Downloads the GCS raw bytes to bypass private buckets XML anonymity error."""
+    """Descarga los bytes crudos de GCS para omitir el error XML de buckets privados."""
     try:
          obj_id = ObjectId(report_id)
     except Exception:
@@ -131,7 +128,7 @@ async def delete_report(
     current_user: UserInDB = Depends(get_current_user),
     db: AsyncIOMotorDatabase = Depends(get_database)
 ):
-    """Deletes the link or URL. Typically does not remove from GCS locally here (delegated to file-manager)."""
+    """Elimina la referencia del reporte (no el archivo físico en GCS)."""
     try:
          obj_id = ObjectId(report_id)
     except Exception:

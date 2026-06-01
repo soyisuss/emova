@@ -17,7 +17,7 @@ class PasswordChangeView(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(40, 20, 40, 20)
         
-        # Back button row
+        # Fila del botón de regreso
         back_layout = QHBoxLayout()
         self.btn_back = QPushButton("← Regresar")
         self.btn_back.setProperty("class", "BackButton")
@@ -29,7 +29,7 @@ class PasswordChangeView(QWidget):
         
         layout.addSpacing(10)
         
-        # Center container
+        # Contenedor central
         center_layout = QVBoxLayout()
         center_layout.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)
         center_widget = QWidget()
@@ -37,17 +37,17 @@ class PasswordChangeView(QWidget):
         cf_layout = QVBoxLayout(center_widget)
         cf_layout.setSpacing(5)
         
-        # Title
+        # Título
         title = QLabel("Cambio de contraseña")
         title.setProperty("class", "FormTitle")
         title.setFixedHeight(50)
-        # According to standard alignment context, form title rests on the top-left of the center form
+        # El título del formulario se alinea en la parte superior izquierda del contenedor central
         cf_layout.addWidget(title)
         
         cf_layout.addSpacing(10)
         
-        # Inputs
-        # Current Password
+        # Campos de entrada
+        # Contraseña actual
         lbl_current = QLabel("Contraseña actual:")
         lbl_current.setProperty("class", "FormLabel")
         cf_layout.addWidget(lbl_current)
@@ -80,7 +80,7 @@ class PasswordChangeView(QWidget):
         
         cf_layout.addSpacing(5)
         
-        # New password
+        # Nueva contraseña
         lbl_new = QLabel("Nueva contraseña:")
         lbl_new.setProperty("class", "FormLabel")
         cf_layout.addWidget(lbl_new)
@@ -138,7 +138,7 @@ class PasswordChangeView(QWidget):
         update_rules_ui("")
         self.input_new.textChanged.connect(update_rules_ui)
         
-        # Confirm password
+        # Confirmar contraseña
         lbl_confirm = QLabel("Confirmar contraseña:")
         lbl_confirm.setProperty("class", "FormLabel")
         cf_layout.addWidget(lbl_confirm)
@@ -171,7 +171,7 @@ class PasswordChangeView(QWidget):
         
         cf_layout.addSpacing(5)
         
-        # Error message mapping
+        # Mapeo de mensajes de error
         self.lbl_error = QLabel("La contraseña no coincide")
         self.lbl_error.setStyleSheet("color: #8C1C13; font-size: 14px; font-weight: bold;")
         self.lbl_error.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -194,9 +194,9 @@ class PasswordChangeView(QWidget):
         
         cf_layout.addSpacing(5)
         
-        # Submit Button
+        # Botón de envío
         btn_submit = QPushButton("Actualizar")
-        btn_submit.setProperty("class", "DialogButton") # Reusing similar styling
+        btn_submit.setProperty("class", "DialogButton") # Reutiliza el estilo visual existente
         btn_submit.setCursor(Qt.CursorShape.PointingHandCursor)
         btn_submit.setMinimumWidth(200)
         self.btn_submit = btn_submit
@@ -241,12 +241,12 @@ class PasswordChangeView(QWidget):
         self.btn_submit.setEnabled(True)
         self.btn_submit.setText("Actualizar")
         
-        # Clear fields securely
+        # Limpiar los campos de forma segura
         self.input_current.clear()
         self.input_new.clear()
         self.input_confirm.clear()
         
-        # In parent window, we can pop the dialog, but let's just do it directly here.
+        # Se muestra el diálogo de confirmación directamente.
         dialog = CustomDialog(self, "Actualización Exitosa", "Tu contraseña ha sido cambiada correctamente.")
         dialog.exec()
         

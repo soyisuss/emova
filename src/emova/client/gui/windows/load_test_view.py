@@ -10,7 +10,7 @@ from emova.core.session.session_manager import session_manager
 from emova.client.gui.components.custom_dialog import CustomDialog
 
 class LoadTestView(QWidget):
-    go_back = Signal() # Signal to return to dashboard
+    go_back = Signal() # Señal para regresar al dashboard
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -21,7 +21,7 @@ class LoadTestView(QWidget):
         main_layout.setSpacing(20)
         main_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         
-        # --- Top Navigation Bar ---
+        # --- Barra de navegación superior ---
         top_layout = QHBoxLayout()
         
         self.btn_back = QPushButton("← Regresar")
@@ -44,11 +44,11 @@ class LoadTestView(QWidget):
         
         main_layout.addLayout(top_layout)
         
-        # --- Stack Container ---
+        # Contenedor del stack
         self.stack = QStackedWidget()
         
         # ==========================================
-        # PAGE 0: List View
+        # PÁGINA 0: Vista de lista
         # ==========================================
         self.page_list = QWidget()
         page_list_layout = QVBoxLayout(self.page_list)
@@ -68,13 +68,13 @@ class LoadTestView(QWidget):
         page_list_layout.addWidget(scroll_area)
         
         # ==========================================
-        # PAGE 1: Detail View
+        # PÁGINA 1: Vista de detalle
         # ==========================================
         self.page_detail = QWidget()
         detail_layout = QVBoxLayout(self.page_detail)
         detail_layout.setContentsMargins(0,0,0,0)
         
-        # Header showing selected template name
+        # Encabezado que muestra el nombre de la plantilla seleccionada
         self.lbl_detail_title = QLabel("Detalles de la Prueba")
         self.lbl_detail_title.setStyleSheet("font-size: 18px; font-weight: bold; color: #333;")
         self.lbl_detail_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -93,7 +93,7 @@ class LoadTestView(QWidget):
         detail_scroll.setWidget(self.detail_widget)
         detail_layout.addWidget(detail_scroll)
         
-        # Final CTA inside detail view
+        # Acción principal final en la vista de detalle
         bottom_layout = QHBoxLayout()
         self.btn_load_from_detail = QPushButton("Repetir esta prueba")
         self.btn_load_from_detail.setProperty("class", "PrimaryButton")
@@ -106,8 +106,8 @@ class LoadTestView(QWidget):
         
         detail_layout.addLayout(bottom_layout)
         
-        self.stack.addWidget(self.page_list)     # Index 0
-        self.stack.addWidget(self.page_detail)   # Index 1
+        self.stack.addWidget(self.page_list)     # Índice 0
+        self.stack.addWidget(self.page_detail)   # Índice 1
         
         main_layout.addWidget(self.stack, stretch=1)
         
@@ -314,15 +314,15 @@ class LoadTestView(QWidget):
             tw_layout.addWidget(lbl_desc)
             self.detail_tasks_layout.addWidget(task_w)
             
-        # Reconnect button safely
+        # Reconectar botón de forma segura
         try:
             self.btn_load_from_detail.clicked.disconnect()
         except TypeError:
-            pass # No connections existed
+            pass # No existían conexiones previas
             
         self.btn_load_from_detail.clicked.connect(lambda: self.select_template(tasks))
         
-        # Transition to detail view
+        # Transición a la vista de detalle
         self.stack.setCurrentIndex(1)
         
     def select_template(self, tasks):

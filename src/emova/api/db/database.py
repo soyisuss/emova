@@ -1,30 +1,29 @@
 """
-Data Access Module using Motor and asynchronous injection.
+Módulo de acceso a datos utilizando Motor e inyección asíncrona.
 
-Acts as a mediator with MongoDB for metadata, sessions, and document collections.
-Provides lifespan calls (FastAPI start/close) for socket management.
+Actúa como mediador con MongoDB para metadatos, sesiones y colecciones.
 """
 from motor.motor_asyncio import AsyncIOMotorClient
 from emova.api.core.config import settings
 
 class Database:
-    """Lightweight singleton class to inject its client from FastAPI."""
+    """Clase Singleton ligera para inyectar su cliente desde FastAPI."""
     client: AsyncIOMotorClient | None = None
 
 db = Database()
 
 async def get_database():
     """ 
-    Dependency to inject into FastAPI routes for each http request
-    to isolate and provide exclusive direct access to the `emova_db` database.
+    Dependencia para inyectar en las rutas de FastAPI para cada petición HTTP
+    y proveer acceso a la base de datos `emova_db`.
     """
     return db.client[settings.DATABASE_NAME]
 
 async def connect_to_mongo():
-    """Called from `main.lifespan` at FastAPI startup. Executes TCP DB connection."""
+    """Se ejecuta en el inicio de la aplicación. Realiza la conexión TCP a la base de datos."""
     db.client = AsyncIOMotorClient(settings.MONGODB_URL)
 
 async def close_mongo_connection():
-    """Closes the connection when finalizing the main framework session."""
+    """Cierra la conexión al finalizar la sesión del servidor."""
     if db.client is not None:
         db.client.close()

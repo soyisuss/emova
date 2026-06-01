@@ -9,7 +9,7 @@ class FaceDetector:
 
 
     def detect(self, frame):
-        # ... (la misma implementación de detect si se quiere mantener)
+        # Convierte el frame a un blob y realiza la inferencia para detectar rostros.
         blob = cv2.dnn.blobFromImage(frame, 1.0, (300, 300), (104, 177, 123))
         self.net.setInput(blob)
         return self.net.forward()

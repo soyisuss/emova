@@ -16,7 +16,7 @@ class RegisterParticipantView(QWidget):
         main_layout.setSpacing(20)
         main_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         
-        # --- Top Navigation Bar ---
+        # --- Barra de navegación superior ---
         top_layout = QHBoxLayout()
         
         btn_back = QPushButton("← Regresar")
@@ -38,7 +38,7 @@ class RegisterParticipantView(QWidget):
         
         main_layout.addLayout(top_layout)
         
-        # --- Scrollable Content Area ---
+        # --- Área de contenido desplazable ---
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
         scroll_area.setFrameShape(QFrame.Shape.NoFrame)
@@ -50,25 +50,25 @@ class RegisterParticipantView(QWidget):
         form_layout.setSpacing(25)
         form_layout.setContentsMargins(40, 20, 40, 20)
         
-        # Participant ID
+        # ID del participante
         lbl_id = QLabel("ID.Participante:001")
-        lbl_id.setProperty("class", "TaskNumberLabel") # Reusing purple bold styling
+        lbl_id.setProperty("class", "TaskNumberLabel") # Reutiliza el estilo morado en negrita
         form_layout.addWidget(lbl_id)
         
-        # Age
+        # Edad
         lbl_age = QLabel("Edad:")
         lbl_age_hint = QLabel("(Solo número)")
         lbl_age_hint.setStyleSheet("font-size: 11px; color: black; font-weight: bold;")
         
         self.input_age = QLineEdit()
-        self.input_age.setValidator(QIntValidator(1, 120)) # Only numbers
+        self.input_age.setValidator(QIntValidator(1, 120)) # Permitir únicamente números
         self.input_age.setFixedWidth(150)
         
         form_layout.addWidget(lbl_age)
         form_layout.addWidget(self.input_age)
         form_layout.addWidget(lbl_age_hint)
         
-        # Gender
+        # Género
         lbl_gender = QLabel("Genero:")
         form_layout.addWidget(lbl_gender)
         
@@ -90,7 +90,7 @@ class RegisterParticipantView(QWidget):
         
         form_layout.addLayout(gender_layout)
         
-        # Occupation
+        # Ocupación
         lbl_occ = QLabel("Ocupación:")
         self.input_occ = QLineEdit()
         self.input_occ.setFixedWidth(500)
@@ -98,7 +98,7 @@ class RegisterParticipantView(QWidget):
         form_layout.addWidget(lbl_occ)
         form_layout.addWidget(self.input_occ)
         
-        # Frequency Questionnaire
+        # Cuestionario de frecuencia
         lbl_freq = QLabel("¿Con qué frecuencia utiliza aplicaciones o sistemas digitales (apps, páginas web,\nplataformas)?")
         lbl_freq.setWordWrap(True)
         form_layout.addWidget(lbl_freq)
@@ -122,7 +122,7 @@ class RegisterParticipantView(QWidget):
         scroll_area.setWidget(scroll_widget)
         main_layout.addWidget(scroll_area, stretch=1)
         
-        # --- Bottom Finalize Button ---
+        # --- Botón inferior para finalizar ---
         bottom_layout = QHBoxLayout()
         btn_finalize = QPushButton("Finalizar registro")
         btn_finalize.setProperty("class", "PrimaryButton")
@@ -135,23 +135,23 @@ class RegisterParticipantView(QWidget):
         
         main_layout.addLayout(bottom_layout)
         
-        # Connect finalizing action
+        # Conectar la acción de finalización
         btn_finalize.clicked.connect(self.save_participant)
 
     def save_participant(self):
-        # Extract age
+        # Obtener la edad
         age = self.input_age.text().strip()
         
-        # Extract gender
+        # Obtener el género
         gender = "No especificado"
         checked_gender = self.btn_gender_group.checkedButton()
         if checked_gender:
             gender = checked_gender.text()
             
-        # Extract occupation
+        # Obtener la ocupación
         occupation = self.input_occ.text().strip()
         
-        # Extract frequency
+        # Obtener la frecuencia de uso
         frequency = "No especificado"
         checked_freq = self.btn_freq_group.checkedButton()
         if checked_freq:
@@ -164,7 +164,7 @@ class RegisterParticipantView(QWidget):
             "Frecuencia de Uso Digital": frequency
         }
         
-        # Store securely into App's central state
+        # Guardar de forma segura en el estado central de la aplicación
         session_manager.set_participant(data)
         
         dialog = CustomDialog(

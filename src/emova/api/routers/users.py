@@ -1,9 +1,7 @@
 """
-Transactional routes module for Users.
+Módulo de rutas transaccionales para usuarios.
 
-Manages the end-to-end lifecycle of a user account within the 
-system: registration (RB9), querying, partial update, deletion, and 
-secure password change (Argon2).
+Gestiona el ciclo de vida de las cuentas de usuario en el sistema.
 """
 from fastapi import APIRouter, Depends, HTTPException, status
 from motor.motor_asyncio import AsyncIOMotorDatabase
@@ -28,7 +26,7 @@ async def create_user(
     user: UserCreate,
     db: AsyncIOMotorDatabase = Depends(get_database)
 ):
-    """Registers and securely encodes the password."""
+    """Registra un nuevo usuario y encripta su contraseña."""
     existing_user = await db["users"].find_one({"email": user.email})
     if existing_user:
         raise HTTPException(
@@ -52,7 +50,7 @@ async def create_user(
 async def read_current_user(
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """Retrieves data of the own user based on the active JWT."""
+    """Recupera la información del usuario autenticado actual."""
     return UserResponse(**current_user.model_dump(by_alias=True))
 
 
@@ -62,7 +60,7 @@ async def update_current_user(
     current_user: UserInDB = Depends(get_current_user),
     db: AsyncIOMotorDatabase = Depends(get_database)
 ):
-    """Edits permitted account attributes such as email."""
+    """Edita atributos permitidos de la cuenta, como el correo electrónico."""
     update_data = user_in.model_dump(exclude_unset=True)
 
     if "email" in update_data and update_data["email"] != current_user.email:
@@ -89,7 +87,7 @@ async def update_password(
     current_user: UserInDB = Depends(get_current_user),
     db: AsyncIOMotorDatabase = Depends(get_database)
 ):
-    """Changes the password requiring confirmation of the old one (and validating RB9)."""
+    """Cambia la contraseña requiriendo la confirmación de la anterior (y validando RB9)."""
     if not verify_password(passwords.old_password, current_user.passwordHash):
         raise HTTPException(
             status_code=400, detail="La contraseña actual que proporcionaste es incorrecta.")
@@ -107,6 +105,6 @@ async def delete_current_user(
     current_user: UserInDB = Depends(get_current_user),
     db: AsyncIOMotorDatabase = Depends(get_database)
 ):
-    """Deletes the authenticated account."""
+    """Elimina la cuenta del usuario autenticado."""
     await db["users"].delete_one({"_id": ObjectId(current_user.id)})
     return None

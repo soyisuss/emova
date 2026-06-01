@@ -1,8 +1,16 @@
+"""
+Módulo para el reconocimiento de emociones utilizando un modelo ONNX.
+"""
 import numpy as np
 import onnxruntime as ort
 
 class EmotionRecognizer:
+    """
+    Encapsula el modelo de clasificación de expresiones faciales en formato ONNX
+    y proporciona métodos para inferir emociones a partir de tensores preprocesados.
+    """
     def __init__(self, model_path: str, labels=None):
+
         self.session = ort.InferenceSession(model_path)
         self.input_name = self.session.get_inputs()[0].name
         self.output_name = self.session.get_outputs()[0].name

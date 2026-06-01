@@ -1,7 +1,15 @@
+"""
+Módulo del administrador de sesión. Centraliza los datos temporales del participante y la prueba.
+"""
 import httpx
 from emova.client.api_client import ApiClient
 
+
 class SessionManager:
+    """
+    Administra la sesión de prueba activa, incluyendo datos del participante,
+    tareas a realizar, emociones registradas y la encuesta final.
+    """
     _instance = None
     
     def __new__(cls):
@@ -11,7 +19,9 @@ class SessionManager:
         return cls._instance
         
     def reset_session(self):
-        """Clear all active session data starting fresh."""
+        """
+        Limpia los datos de la sesión activa para iniciar una nueva prueba.
+        """
         self.test_id = "PU-01"
         try:
             api_client = ApiClient.get_instance()
@@ -32,7 +42,7 @@ class SessionManager:
                                     max_num = num
                             except ValueError:
                                 pass
-                    # Encontrar un límite seguro superior
+                    # Encontrar un límite seguro superior para el siguiente ID de prueba
                     next_id = max(max_num + 1, len(templates) + 1)
                     self.test_id = f"PU-{next_id:02d}"
         except Exception:
@@ -40,24 +50,34 @@ class SessionManager:
             
         self.participant = {}
         self.tasks = []
-        self.emotions = []  # Placeholder for future emotion data per task
-        self.survey = {}    # Placeholder for future survey results
+        self.emotions = []  # Datos de emociones detectadas por tarea
+        self.survey = {}    # Resultados de la encuesta final de usabilidad
         
     def set_participant(self, participant_data):
+        """
+        Registra la información demográfica del participante en la sesión.
+        """
         self.participant = participant_data
         
     def add_task(self, title, description):
+        """
+        Agrega una tarea de usabilidad a la sesión activa.
+        """
         self.tasks.append({
             "title": title,
             "description": description
         })
         
     def clear_tasks(self):
-        """Removes all currently recorded tasks (used when re-saving from Task registration)."""
+        """
+        Remueve todas las tareas registradas de la sesión activa.
+        """
         self.tasks = []
         
     def get_report_data(self):
-        """Returns the centralized snapshot of all testing data."""
+        """
+        Retorna una captura centralizada de todos los datos recopilados durante la prueba.
+        """
         return {
             "test_id": self.test_id,
             "participant": self.participant,
@@ -66,5 +86,6 @@ class SessionManager:
             "survey": self.survey
         }
 
-# Global singleton instance to be imported across the application
+# Instancia global (Singleton) para ser importada en toda la aplicación
 session_manager = SessionManager()
+

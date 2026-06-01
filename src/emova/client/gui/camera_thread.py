@@ -10,7 +10,11 @@ from emova.core.vision.pipeline import VideoPreprocessingPipeline
 
 
 class CameraThread(QThread):
-    # Signals to emit frames and prediction data back to the main UI thread
+    """
+    Hilo de ejecución para la captura continua de fotogramas de la cámara
+    y ejecución del pipeline de detección y predicción de emociones.
+    """
+    # Señales para emitir fotogramas procesados y resultados de predicción al hilo principal
     frame_ready = Signal(np.ndarray)
     emotion_ready = Signal(str, float)
 
@@ -20,9 +24,9 @@ class CameraThread(QThread):
         self.camera_index = 0
         self.cap = None
         self.is_detecting = False
-        self.sampler = FPSSampler(3)  # Process every 3rd frame
-        self._tensor_batch_buffer = []  # Buffer limitador para el modelo de IA
-        # Por ej. a 3 FPS de extracción, juntará imágenes durante 1 segundo entero.
+        self.sampler = FPSSampler(3)  # Muestreador para procesar 3 fotogramas por segundo (3 FPS)
+        self._tensor_batch_buffer = []  # Búfer acumulador de imágenes para análisis por lotes
+        # Con 3 FPS y un lote de 3, se realiza una predicción acumulada cada segundo
         self.batch_size = 3
 
         import sys
@@ -91,15 +95,18 @@ class CameraThread(QThread):
                         # Vaciamos la caja para esperar las siguientes capturas
                         self._tensor_batch_buffer.clear()
 
-            # Emitir para la vista en el VideoPlayer
+            # Emitir el fotograma procesado para su visualización en el componente de video
             self.frame_ready.emit(display_frame)
 
-            # Sleep slightly to allow thread switching (~33fps)
+            # Pausa breve para permitir la alternancia de hilos (~33 FPS)
             self.msleep(30)
 
         if self.cap is not None:
             self.cap.release()
 
     def stop(self):
+        """
+        Detiene la ejecución del hilo de forma segura.
+        """
         self._is_running = False
-        self.wait()  # Block until thread finishes
+        self.wait()  # Bloquea hasta que el hilo finalice por completo

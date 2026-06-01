@@ -1,4 +1,12 @@
+"""
+Módulo para el recorte de regiones de interés (rostros) en fotogramas de video.
+"""
+
 def crop_face(frame, box):
+    """
+    Recorta el rostro detectado dentro del fotograma utilizando las coordenadas de la caja delimitadora.
+    Asegura que los límites no excedan las dimensiones de la imagen.
+    """
     h, w = frame.shape[:2]
     x1, y1, x2, y2 = box
 
@@ -10,4 +18,4 @@ def crop_face(frame, box):
 
     face = frame[y1:y2, x1:x2]
 
-    return face
+    return face

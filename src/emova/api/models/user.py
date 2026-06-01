@@ -1,8 +1,7 @@
 """
-Pydantic models module for the User entity.
+Módulo de modelos Pydantic para la entidad Usuario.
 
-Establishes fundamental rules and required fields for a User.
-Validates complex password rules defined in (RB9).
+Establece las reglas fundamentales y valida reglas de seguridad de contraseñas (RB9).
 """
 from pydantic import BaseModel, EmailStr, Field, ConfigDict, field_validator
 import re
@@ -13,17 +12,17 @@ from emova.api.models.types import PyObjectId
 PASSWORD_REGEX = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$"
 
 class UserBase(BaseModel):
-    """Intrinsic attributes of a user."""
+    """Atributos intrínsecos de un usuario."""
     email: EmailStr = Field(..., description="Unique email address")
 
 class UserCreate(UserBase):
-    """Data required to register a new User. Contains the unhashed password."""
+    """Datos requeridos para registrar un usuario. Contiene la contraseña sin hash."""
     password: str = Field(..., description="Minimum 8 characters, 1 Uppercase, 1 Lowercase, 1 number, and 1 special character")
 
     @field_validator("password")
     @classmethod
     def validate_password_strength(cls, v: str) -> str:
-        """Applies business rule RB9 for password strength upon registration."""
+        """Aplica la regla de negocio RB9 para la seguridad de la contraseña en el registro."""
         if not re.match(PASSWORD_REGEX, v):
             raise ValueError(
                 "La contraseña debe tener al menos 8 caracteres, 1 letra mayúscula, "
@@ -32,14 +31,14 @@ class UserCreate(UserBase):
         return v
 
 class UserUpdatePassword(BaseModel):
-    """DTO for securely changing User passwords in the system."""
+    """DTO para el cambio seguro de contraseñas en el sistema DTO."""
     old_password: str
     new_password: str
 
     @field_validator("new_password")
     @classmethod
     def validate_password_strength(cls, v: str) -> str:
-        """Applies business rule RB9 for security during voluntary reset."""
+        """Aplica la regla de negocio RB9 para la seguridad durante el restablecimiento voluntario."""
         if not re.match(PASSWORD_REGEX, v):
             raise ValueError(
                 "La nueva contraseña debe tener al menos 8 caracteres, 1 letra mayúscula, "
@@ -48,15 +47,15 @@ class UserUpdatePassword(BaseModel):
         return v
 
 class UserUpdate(BaseModel):
-    """Schema for partial profile updates."""
+    """Esquema para actualizaciones parciales del perfil."""
     email: Optional[EmailStr] = None
 
 class ForgotPasswordRequest(BaseModel):
-    """DTO for requesting a password reset email."""
+    """DTO para solicitar correo de restablecimiento de contraseña."""
     email: EmailStr = Field(..., description="Email address linked to the user account")
 
 class ResetPasswordRequest(BaseModel):
-    """DTO for changing a password using a recovery code."""
+    """DTO para cambiar contraseña mediante código de recuperación."""
     email: EmailStr = Field(..., description="Email address linked to the user account")
     code: str = Field(..., description="6-digit recovery code")
     new_password: str = Field(..., description="New requested password")
@@ -64,7 +63,7 @@ class ResetPasswordRequest(BaseModel):
     @field_validator("new_password")
     @classmethod
     def validate_password_strength(cls, v: str) -> str:
-        """Applies business rule RB9 for security during voluntary reset."""
+        """Aplica la regla de negocio RB9 para la seguridad durante el restablecimiento voluntario."""
         if not re.match(PASSWORD_REGEX, v):
             raise ValueError(
                 "The new password must have at least 8 characters, 1 uppercase letter, "
@@ -73,13 +72,13 @@ class ResetPasswordRequest(BaseModel):
         return v
 
 class UserResponse(UserBase):
-    """View exposed externally to the API. Explicitly hides the password."""
+    """Vista expuesta externamente. Oculta de forma explícita la contraseña."""
     id: PyObjectId = Field(alias="_id", description="UUID for Mongo DB")
 
     model_config = ConfigDict(populate_by_name=True)
 
 class UserInDB(UserBase):
-    """Exact internal representation for MongoDB, includes safely hashed password."""
+    """Representación interna para MongoDB. Incluye la contraseña con hash."""
     passwordHash: str = Field(..., description="Password encrypted by Argon2/bcrypt")
     id: Optional[PyObjectId] = Field(None, alias="_id")
     recoveryCode: Optional[str] = Field(None, description="Recovery code for resetting password")

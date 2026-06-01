@@ -1,8 +1,8 @@
 """
-Central Security and Encryption Module (Argon2 / JWT).
+Módulo central de seguridad y encriptación (Argon2 / JWT).
 
-Houses the robust asymmetric methods to encrypt passwords.
-Implements the confidentiality requirement and password control.
+Contiene los métodos para encriptar contraseñas.
+Implementa requerimientos de confidencialidad y control de contraseñas.
 """
 import secrets
 import string
@@ -13,22 +13,22 @@ from jose import jwt
 
 from emova.api.core.config import settings
 
-# We use Argon2 according to best hashing practices. 
-# The deprecated="auto" algorithm helps with automatic legacy transitions if necessary.
+# Se utiliza Argon2 de acuerdo con las mejores prácticas de hashing. 
+# El algoritmo deprecated="auto" ayuda con transiciones de legado automáticas si es necesario.
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Validates that a raw password matches its hash in the database."""
+    """Valida si una contraseña en texto plano coincide con su hash en la base de datos."""
     return pwd_context.verify(plain_password, hashed_password)
 
 def get_password_hash(password: str) -> str:
-    """Performs the Argon2 cryptographic function and provides a one-way encrypted String."""
+    """Realiza la función criptográfica Argon2 y retorna una cadena encriptada."""
     return pwd_context.hash(password)
 
 def create_access_token(subject: str | Any, expires_delta: Optional[timedelta] = None) -> str:
     """
-    Constructs a JWT with limited lifetime defined natively or by the global configuration.
-    The subject normally is the user's email.
+    Construye un token JWT con tiempo de vida limitado.
+    El sujeto (subject) normalmente es el correo del usuario.
     """
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
@@ -40,6 +40,6 @@ def create_access_token(subject: str | Any, expires_delta: Optional[timedelta] =
     return encoded_jwt
 
 def generate_recovery_code(length: int = 6) -> str:
-    """Generates a secure random code for password recovery."""
+    """Genera un código aleatorio seguro para la recuperación de contraseña."""
     alphabet = string.digits
     return ''.join(secrets.choice(alphabet) for _ in range(length))

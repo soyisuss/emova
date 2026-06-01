@@ -2,6 +2,10 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushBu
 from PySide6.QtCore import Qt, Signal, QPoint
 
 class TaskOverlay(QFrame):
+    """
+    Componente flotante y arrastrable que muestra las instrucciones de la tarea activa
+    y permite controlar su inicio, minimización y completitud.
+    """
     task_started = Signal()
     task_completed = Signal()
     task_cancelled = Signal()
@@ -19,13 +23,13 @@ class TaskOverlay(QFrame):
         
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.setMinimumSize(500, 350)
-        self.setMaximumSize(800, 600)  # Aumentado para no cortar textos largos
+        self.setMaximumSize(800, 600)  # Incrementado para evitar el truncamiento de textos largos
         
         self.main_layout = QVBoxLayout(self)
-        self.main_layout.setContentsMargins(25, 25, 25, 25) # Márgenes reducidos para dar más espacio
+        self.main_layout.setContentsMargins(25, 25, 25, 25) # Márgenes reducidos para optimizar el espacio disponible
         self.main_layout.setSpacing(15)
         
-        # Title bar with minimize button
+        # Barra de título con botón de minimizar
         title_layout = QHBoxLayout()
         self.title_label = QLabel("Tarea 1: Titulo de la tarea")
         self.title_label.setObjectName("ViewTitle")
@@ -47,7 +51,7 @@ class TaskOverlay(QFrame):
         title_layout.addWidget(self.title_label, stretch=1)
         title_layout.addWidget(self.btn_toggle)
         
-        # Container for hidable content
+        # Contenedor para contenido plegable
         self.content_widget = QWidget()
         content_layout = QVBoxLayout(self.content_widget)
         content_layout.setContentsMargins(0, 0, 0, 0)
@@ -98,7 +102,7 @@ class TaskOverlay(QFrame):
         self.state = "INIT"
         self.is_minimized = False
         
-        # Drag coordinates
+        # Coordenadas de arrastre
         self._drag_pos = None
 
     def toggle_minimize(self):
@@ -117,18 +121,18 @@ class TaskOverlay(QFrame):
             self.main_layout.setContentsMargins(25, 25, 25, 25)
             self.adjustSize()
             
-    # ------ EVENTOS PARA ARRASTRAR EL OVERLAY ------
+    # ------ EVENTOS PARA ARRASTRAR EL COMPONENTE (OVERLAY) ------
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
-            # Detecta la posición del clic dentro del widget
+            # Obtiene la posición inicial del clic dentro del widget
             self._drag_pos = event.globalPosition().toPoint() - self.frameGeometry().topLeft()
             event.accept()
-
+ 
     def mouseMoveEvent(self, event):
         if event.buttons() & Qt.MouseButton.LeftButton and self._drag_pos:
             new_pos = event.globalPosition().toPoint() - self._drag_pos
             
-            # Limitar el movimiento al contenedor padre
+            # Restringe el movimiento al área del contenedor padre
             if self.parent():
                 parent_rect = self.parent().rect()
                 max_x = parent_rect.width() - self.width()
@@ -139,25 +143,25 @@ class TaskOverlay(QFrame):
             else:
                 self.move(new_pos)
             event.accept()
-
+ 
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
             self._drag_pos = None
             event.accept()
-    # -----------------------------------------------
+    # ------------------------------------------------------------
             
     def load_task(self, task_number, title, description):
         self.title_label.setText(f"Tarea {task_number}: {title}")
         self.desc_label.setText(description)
         self.reset_state()
         
-        # Forzar recalculo de dimensiones para evitar que textos largos se corten
+        # Fuerza la actualización de dimensiones para evitar truncamiento en textos extensos
         self.adjustSize()
         
     def reset_state(self):
         self.state = "INIT"
         self.btn_action.setText("Iniciar Tarea")
-        self.btn_action.setStyleSheet("") # Default class style
+        self.btn_action.setStyleSheet("") # Estilo predeterminado de la clase
         if self.is_minimized:
             self.toggle_minimize()
         
@@ -165,7 +169,7 @@ class TaskOverlay(QFrame):
         if self.state == "INIT":
             self.state = "STARTED"
             self.btn_action.setText("✓ Completar Tarea")
-            # Style the button green and more prominent
+            # Aplica estilo verde al botón para destacar la acción de completar
             self.btn_action.setStyleSheet("""
                 QPushButton {
                     background-color: #27AE60;
@@ -181,6 +185,6 @@ class TaskOverlay(QFrame):
                 }
             """)
             self.task_started.emit()
-            self.toggle_minimize() # Opcional: minimizar auto al iniciar la tarea
+            self.toggle_minimize() # Opcional: minimiza de forma automática al iniciar la tarea
         elif self.state == "STARTED":
             self.task_completed.emit()

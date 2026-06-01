@@ -7,8 +7,8 @@ from emova.core.session.session_manager import session_manager
 from emova.client.gui.components.custom_dialog import CustomDialog
 
 class EditTaskView(QWidget):
-    go_back = Signal() # Signal to go back to the dashboard
-    go_to_add = Signal() # Signal to route to the Creation View
+    go_back = Signal() # Señal para regresar al dashboard
+    go_to_add = Signal() # Señal para ir a la vista de creación
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -18,7 +18,7 @@ class EditTaskView(QWidget):
         main_layout.setSpacing(20)
         main_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         
-        # --- Top Navigation Bar ---
+        # --- Barra de navegación superior ---
         top_layout = QHBoxLayout()
         
         btn_back = QPushButton("← Regresar")
@@ -30,19 +30,19 @@ class EditTaskView(QWidget):
         title.setProperty("class", "ViewTitle")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
-        # Add stretch to center the title properly
+        # Agregar espaciado para centrar el título correctamente
         top_layout.addWidget(btn_back)
         top_layout.addStretch()
         top_layout.addWidget(title)
         top_layout.addStretch()
-        # To strictly center, we need a dummy widget of same width as back button on the right
+        # Para centrar estrictamente, se agrega un widget vacío en el lado derecho
         dummy = QWidget()
         dummy.setFixedWidth(btn_back.sizeHint().width() if btn_back.sizeHint().width() > 0 else 100)
         top_layout.addWidget(dummy)
         
         main_layout.addLayout(top_layout)
         
-        # --- Scrollable Content Area ---
+        # --- Área de contenido desplazable ---
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
         scroll_area.setFrameShape(QFrame.Shape.NoFrame)
@@ -56,7 +56,7 @@ class EditTaskView(QWidget):
         scroll_area.setWidget(scroll_widget)
         main_layout.addWidget(scroll_area, stretch=1)
         
-        # --- Bottom Finalize Button ---
+        # --- Botón inferior para finalizar ---
         self.bottom_layout = QHBoxLayout()
         self.bottom_layout.setSpacing(20)
         
@@ -81,7 +81,7 @@ class EditTaskView(QWidget):
         
     def load_tasks_from_session(self):
         """Clears the current layout and generates blocks based on the SessionManager."""
-        # Clean current layout cleanly
+        # Limpiar el diseño actual de forma segura
         while self.tasks_layout.count():
             child = self.tasks_layout.takeAt(0)
             if child.widget():
@@ -90,9 +90,9 @@ class EditTaskView(QWidget):
         tasks = session_manager.tasks
         
         if not tasks:
-            # Render Empty State View
+            # Renderizar la vista de estado vacío
             self.render_empty_state()
-            self.btn_finalize.hide() # Hide since there is nothing to finalize
+            self.btn_finalize.hide() # Ocultar ya que no hay tareas para finalizar
             self.btn_add_more.hide()
         else:
             self.btn_finalize.show()
@@ -110,7 +110,7 @@ class EditTaskView(QWidget):
         lbl_msg.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
         btn_add_now = QPushButton("Ir a agregar tareas +")
-        btn_add_now.setProperty("class", "AnalysisButton") # Reusing purple button style
+        btn_add_now.setProperty("class", "AnalysisButton") # Reutiliza el estilo de botón morado
         btn_add_now.setCursor(Qt.CursorShape.PointingHandCursor)
         btn_add_now.setFixedWidth(250)
         btn_add_now.clicked.connect(self.go_to_add.emit)
@@ -148,12 +148,12 @@ class EditTaskView(QWidget):
         input_desc.setReadOnly(True)
         input_desc.setStyleSheet("background-color: #EFEFEF; color: #555555; border: 2px solid #333333;")
         
-        # Edit action button for each task
+        # Botón de acción de edición para cada tarea
         btn_edit = QPushButton("Editar")
         btn_edit.setProperty("class", "InlineActionButton")
         btn_edit.setCursor(Qt.CursorShape.PointingHandCursor)
         
-        # Connect Edit button toggle logic
+        # Conectar la lógica de alternancia del botón de edición
         btn_edit.clicked.connect(lambda _, ti=input_title, td=input_desc, btn=btn_edit: self.toggle_edit_mode(btn, ti, td))
         
         action_layout = QHBoxLayout()
@@ -173,31 +173,31 @@ class EditTaskView(QWidget):
             self.toggle_edit_mode(btn_edit, input_title, input_desc)
 
     def toggle_edit_mode(self, btn, input_title, input_desc):
-        # If currently locked, unlock it
+        # Si está bloqueado, se desbloquea
         if input_title.isReadOnly():
             input_title.setReadOnly(False)
             input_desc.setReadOnly(False)
             
-            # Change visuals to indicate editable state
+            # Cambiar diseño visual para indicar estado editable
             input_title.setStyleSheet("background-color: white; color: black; border: 2px solid #7E38B7;")
             input_desc.setStyleSheet("background-color: white; color: black; border: 2px solid #7E38B7;")
             
             btn.setText("Guardar")
-            btn.setStyleSheet("color: #7E38B7;") # Purple indicating action to save
+            btn.setStyleSheet("color: #7E38B7;") # Color morado que indica acción para guardar
         else:
-            # If unlocked, lock it back
+            # Si está desbloqueado, se vuelve a bloquear
             input_title.setReadOnly(True)
             input_desc.setReadOnly(True)
             
-            # Revert visuals to indicate locked
+            # Revertir diseño visual para indicar estado bloqueado
             input_title.setStyleSheet("background-color: #EFEFEF; color: #555555; border: 2px solid #333333;")
             input_desc.setStyleSheet("background-color: #EFEFEF; color: #555555; border: 2px solid #333333;")
             
             btn.setText("Editar")
-            btn.setStyleSheet("") # Revert to global CSS class (.InlineActionButton)
+            btn.setStyleSheet("") # Revertir a la clase CSS global (.InlineActionButton)
 
     def _rebuild_tasks_from_ui(self):
-        # Clear existing tasks to rebuild from UI state
+        # Limpiar tareas existentes para reconstruir desde la interfaz
         session_manager.clear_tasks() if hasattr(session_manager, 'clear_tasks') else None
         if not hasattr(session_manager, 'clear_tasks'):
             session_manager.tasks = []
@@ -232,7 +232,7 @@ class EditTaskView(QWidget):
             )
             dialog.exec()
         else:
-            # Save to MongoDB
+            # Guardar en MongoDB
             try:
                 from emova.client.api_client import ApiClient
                 api_client = ApiClient.get_instance()

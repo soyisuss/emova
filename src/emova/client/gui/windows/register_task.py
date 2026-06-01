@@ -8,7 +8,7 @@ from emova.core.session.session_manager import session_manager
 from emova.client.gui.components.custom_dialog import CustomDialog
 
 class RegisterTaskView(QWidget):
-    go_back = Signal() # Signal to go back to the dashboard
+    go_back = Signal() # Señal para regresar al dashboard
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -18,7 +18,7 @@ class RegisterTaskView(QWidget):
         main_layout.setSpacing(20)
         main_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         
-        # --- Top Navigation Bar ---
+        # --- Barra de navegación superior ---
         top_layout = QHBoxLayout()
         
         btn_back = QPushButton("← Regresar")
@@ -30,19 +30,19 @@ class RegisterTaskView(QWidget):
         title.setProperty("class", "ViewTitle")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
-        # Add stretch to center the title properly
+        # Agregar espaciado para centrar el título correctamente
         top_layout.addWidget(btn_back)
         top_layout.addStretch()
         top_layout.addWidget(title)
         top_layout.addStretch()
-        # To strictly center, we need a dummy widget of same width as back button on the right
+        # Para centrar estrictamente, se agrega un widget vacío en el lado derecho
         dummy = QWidget()
         dummy.setFixedWidth(btn_back.sizeHint().width() if btn_back.sizeHint().width() > 0 else 100)
         top_layout.addWidget(dummy)
         
         main_layout.addLayout(top_layout)
         
-        # --- Test Alias ---
+        # --- Alias de la prueba ---
         alias_layout = QHBoxLayout()
         lbl_alias = QLabel("Alias / Nombre de la Prueba:")
         lbl_alias.setStyleSheet("font-weight: bold; font-size: 16px; color: #333;")
@@ -55,7 +55,7 @@ class RegisterTaskView(QWidget):
         
         main_layout.addLayout(alias_layout)
         
-        # --- Scrollable Content Area ---
+        # --- Área de contenido desplazable ---
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
         scroll_area.setFrameShape(QFrame.Shape.NoFrame)
@@ -66,13 +66,13 @@ class RegisterTaskView(QWidget):
         self.tasks_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.tasks_layout.setSpacing(30)
         
-        # Add the first default task block
+        # Agregar el bloque de tarea inicial por defecto
         self.add_task_block(1)
         
         scroll_area.setWidget(scroll_widget)
         main_layout.addWidget(scroll_area, stretch=1)
         
-        # --- Add New Task Button ---
+        # --- Botón para agregar nueva tarea ---
         btn_add_task = QPushButton("+ Añadir tarea")
         btn_add_task.setProperty("class", "InlineActionButton")
         btn_add_task.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -85,7 +85,7 @@ class RegisterTaskView(QWidget):
         
         main_layout.addLayout(action_layout)
         
-        # --- Bottom Finalize Button ---
+        # --- Botón inferior para finalizar ---
         bottom_layout = QHBoxLayout()
         btn_finalize = QPushButton("Finalizar registro")
         btn_finalize.setProperty("class", "PrimaryButton")
@@ -151,59 +151,59 @@ class RegisterTaskView(QWidget):
         layout.addWidget(input_desc)
         
         self.tasks_layout.addWidget(task_widget)
-        self.renumber_tasks() # Force re-evaluate UI button states
+        self.renumber_tasks() # Forzar la reevaluación de estados de los botones en la interfaz
         
     def on_add_task_clicked(self):
         self.task_count += 1
         self.add_task_block(self.task_count)
         
     def toggle_edit_mode(self, btn, input_title, input_desc):
-        # If currently locked, unlock it
+        # Si está bloqueado, se desbloquea
         if input_title.isReadOnly():
             input_title.setReadOnly(False)
             input_desc.setReadOnly(False)
             
-            # Change visuals to indicate editable state
+            # Cambiar diseño visual para indicar estado editable
             input_title.setStyleSheet("background-color: white; color: black; border: 2px solid #7E38B7;")
             input_desc.setStyleSheet("background-color: white; color: black; border: 2px solid #7E38B7;")
             
             btn.setText("Guardar")
-            btn.setStyleSheet("color: #7E38B7;") # Purple indicating action to save
+            btn.setStyleSheet("color: #7E38B7;") # Color morado que indica acción para guardar
         else:
-            # If unlocked, lock it back
+            # Si está desbloqueado, se vuelve a bloquear
             input_title.setReadOnly(True)
             input_desc.setReadOnly(True)
             
-            # Revert visuals to indicate locked
+            # Revertir diseño visual para indicar estado bloqueado
             input_title.setStyleSheet("background-color: #EFEFEF; color: #555555; border: 2px solid #333333;")
             input_desc.setStyleSheet("background-color: #EFEFEF; color: #555555; border: 2px solid #333333;")
             
             btn.setText("Editar")
-            btn.setStyleSheet("") # Revert to global CSS class (.EditButton)
+            btn.setStyleSheet("") # Revertir a la clase CSS global (.EditButton)
             
     def remove_task_block(self, task_widget):
         self.tasks_layout.removeWidget(task_widget)
         task_widget.deleteLater()
         self.task_count -= 1
         
-        # If we deleted the last task, show the empty state again
+        # Si se eliminó la última tarea, mostrar de nuevo el estado vacío
         if self.task_count == 0:
             self.render_empty_state()
         else:
-            # Auto-renumber the labels of remaining tasks
+            # Renumerar automáticamente las etiquetas de las tareas restantes
             self.renumber_tasks()
             
     def renumber_tasks(self):
-        # Iterate over all task widgets in the layout and correct their displayed number
+        # Iterar sobre los widgets de tareas en el diseño y corregir su numeración
         for i in range(self.tasks_layout.count()):
             widget = self.tasks_layout.itemAt(i).widget()
             if widget:
-                # Find the label
+                # Buscar la etiqueta
                 label = widget.findChild(QLabel, "TaskNumberLabel")
                 if label:
                     label.setText(f"Tarea {i + 1}")
                 
-                # Find the delete button
+                # Buscar el botón de eliminación
                 for btn in widget.findChildren(QPushButton):
                     if btn.text() == "✖ Eliminar":
                         if self.tasks_layout.count() == 1:
@@ -213,10 +213,10 @@ class RegisterTaskView(QWidget):
                         break
 
     def save_tasks(self):
-        # Clear existing tasks to avoid appending duplicates from rapid clicking
+        # Limpiar tareas existentes para evitar duplicados por clics rápidos
         session_manager.clear_tasks() if hasattr(session_manager, 'clear_tasks') else None
         if not hasattr(session_manager, 'clear_tasks'):
-            session_manager.tasks = [] # Fallback
+            session_manager.tasks = [] # Respaldo
             
         task_count = 0
         for i in range(self.tasks_layout.count()):
@@ -241,7 +241,7 @@ class RegisterTaskView(QWidget):
             dialog.exec()
             return
             
-        # Save to MongoDB
+        # Guardar en MongoDB
         try:
             alias = self.input_alias.text().strip()
             if not alias:

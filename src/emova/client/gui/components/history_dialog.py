@@ -10,6 +10,10 @@ from emova.client.api_client import ApiClient
 
 
 class HistoryDialog(QDialog):
+    """
+    Diálogo para mostrar el historial de reportes sincronizados de usabilidad.
+    Permite descargar los reportes locales u borrarlos del servidor.
+    """
     def __init__(self, reports, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Historial de Reportes Sincronizados")
@@ -102,9 +106,9 @@ class HistoryDialog(QDialog):
             QTableWidget.SelectionBehavior.SelectRows)
 
         for row, r in enumerate(self.reports):
-            # Parse Date
+            # Procesar la fecha
             created_at = r.get("createdAt", "Fecha desconocida")
-            # Limit length formatting if its an ISO string
+            # Limitar la longitud de la cadena si está en formato ISO
             if "T" in created_at:
                 created_at = created_at.replace("T", " ")[:19]
 

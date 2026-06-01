@@ -23,7 +23,7 @@ fast_mail = FastMail(conf)
 
 async def send_recovery_email(email: EmailStr, code: str):
     """
-    Sends an email with the password recovery code.
+    Envía un correo electrónico con el código de recuperación de contraseña.
     """
     html = f"""
     <!DOCTYPE html>

@@ -1,6 +1,10 @@
+"""
+Módulo predictor de emociones. Maneja la sesión de inferencia de ONNX Runtime para el modelo ResNet-50.
+"""
 import os
 import numpy as np
 import onnxruntime as ort
+
 
 import sys
 if getattr(sys, 'frozen', False):

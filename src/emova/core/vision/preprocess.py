@@ -1,7 +1,14 @@
+"""
+Módulo para el preprocesamiento de imágenes faciales antes de la inferencia del modelo.
+"""
 import cv2
 import numpy as np
 
 def preprocess(image):
+    """
+    Preprocesa una imagen facial: redimensiona a 224x224, convierte a RGB,
+    normaliza con estadísticas de ImageNet y cambia el formato a CHW.
+    """
     # 4.7.5 Redimensionamiento: Interpolación Bilineal a 224x224
     image = cv2.resize(image, (224, 224), interpolation=cv2.INTER_LINEAR)
 
@@ -15,7 +22,8 @@ def preprocess(image):
     
     image = (image - mean) / std
 
-    # Retornamos formato CHW (opcionalmente) o HWC, usualmente PyTorch expects CHW
+    # Retornamos en formato CHW, el cual es esperado por el modelo de IA
     image = np.transpose(image, (2, 0, 1))
 
-    return image
+    return image
+

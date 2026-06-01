@@ -1,3 +1,6 @@
+"""
+Módulo del pipeline de preprocesamiento de video. Integra validación de enfoque, detección y recorte de rostros.
+"""
 import numpy as np
 from typing import List, Dict, Any, Generator
 
@@ -8,6 +11,11 @@ from emova.core.vision.face_cropper import crop_face
 from emova.core.vision.preprocess import preprocess
 
 class VideoPreprocessingPipeline:
+    """
+    Pipeline que orquesta el procesamiento de fotogramas, validando el enfoque,
+    detectando rostros y aplicando el preprocesamiento necesario antes de la inferencia.
+    """
+
     def __init__(self, face_detector: FaceDetector, focus_threshold: float = 60.0):
         self.face_detector = face_detector
         self.focus_threshold = focus_threshold

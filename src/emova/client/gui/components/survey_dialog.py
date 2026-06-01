@@ -7,6 +7,10 @@ from PySide6.QtCore import Qt
 from emova.core.session.session_manager import session_manager
 
 class UsabilitySurveyDialog(QDialog):
+    """
+    Diálogo modal para la encuesta final de usabilidad.
+    Presenta preguntas por tarea y preguntas de evaluación global.
+    """
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("SurveyDialog")
@@ -61,14 +65,14 @@ class UsabilitySurveyDialog(QDialog):
         line.setStyleSheet("color: #DDDDDD; margin-bottom: 10px;")
         self.content_layout.addWidget(line)
         
-        # Get tasks from session manager
+        # Obtener tareas del administrador de sesión
         tasks = session_manager.tasks
         
-        # === PER-TASK QUESTIONS ===
+        # === PREGUNTAS POR TAREA ===
         self.questions_data = []
         
         if tasks:
-            # Section title for tasks
+            # Título de sección para tareas
             task_section_lbl = QLabel("EVALUACIÓN DE TAREAS")
             task_section_lbl.setStyleSheet("font-size: 18px; font-weight: bold; color: #7E38B7; margin-top: 10px;")
             task_section_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -77,19 +81,19 @@ class UsabilitySurveyDialog(QDialog):
             for idx, task in enumerate(tasks):
                 task_title = task.get("title", f"Tarea {idx + 1}")
                 
-                # Question for this specific task
+                # Pregunta para esta tarea específica
                 self.questions_data.append((
                     f"task_{idx}_ease",
                     f"{idx + 1}. ¿Te resultó fácil o difícil realizar la tarea: \"{task_title}\"?"
                 ))
         
-        # === GENERAL USABILITY QUESTIONS (4 questions) ===
+        # === PREGUNTAS GENERALES DE USABILIDAD (4 preguntas) ===
         general_section_lbl = QLabel("EVALUACIÓN GENERAL DE USABILIDAD")
         general_section_lbl.setStyleSheet("font-size: 18px; font-weight: bold; color: #7E38B7; margin-top: 20px;")
         general_section_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.content_layout.addWidget(general_section_lbl)
         
-        # Add 4 general usability questions
+        # Agregar 4 preguntas generales de usabilidad
         general_questions = [
             ("ease_of_use", "¿Te resultó fácil o difícil utilizar la interfaz en general?"),
             ("navigation", "¿Te resultó fácil o difícil navegar por la plataforma?"),
@@ -97,7 +101,7 @@ class UsabilitySurveyDialog(QDialog):
             ("satisfaction", "¿Te resultó fácil o difícil interactuar con el sistema en general?")
         ]
         
-        # Offset for general questions
+        # Desplazamiento para preguntas generales
         question_offset = len(tasks) if tasks else 0
         
         for idx, (key, text) in enumerate(general_questions):
@@ -226,21 +230,21 @@ class UsabilitySurveyDialog(QDialog):
     def save_survey(self):
         results = {}
         
-        # Check all questions are answered
+        # Verificar que todas las preguntas hayan sido respondidas
         for key, text in self.questions_data:
             bgroup = self.button_groups[key]
             checked_id = bgroup.checkedId()
-            if checked_id == -1: # No option selected
+            if checked_id == -1: # Ninguna opción seleccionada
                 QMessageBox.warning(self, "Campos Incompletos", "Por favor califica todas las preguntas para que tu encuesta sea válida.")
                 return
             results[key] = checked_id
             
         results["comments"] = self.txt_comments.toPlainText().strip()
         
-        # Save to session manager
+        # Guardar en el administrador de sesión
         session_manager.survey = results
         
-        # Success Box
+        # Cuadro de diálogo de confirmación exitosa
         msg = QMessageBox(self)
         msg.setWindowTitle("Encuesta Completada")
         msg.setText("¡Muchas gracias por responder!\n\nHemos registrado tu respuesta correctamente.")

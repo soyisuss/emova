@@ -19,7 +19,7 @@ class LoginView(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(40, 20, 40, 20)
         
-        # Back button row
+        # Fila del botón de regreso
         back_layout = QHBoxLayout()
         self.btn_back = QPushButton("← Regresar")
         self.btn_back.setObjectName("btnBack")
@@ -33,7 +33,7 @@ class LoginView(QWidget):
         
         layout.addSpacing(10)
         
-        # Center container
+        # Contenedor central
         center_layout = QVBoxLayout()
         center_layout.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)
         center_widget = QWidget()
@@ -41,7 +41,7 @@ class LoginView(QWidget):
         cf_layout = QVBoxLayout(center_widget)
         cf_layout.setSpacing(5)
         
-        # Title
+        # Título
         title = QLabel("Inicio de sesión")
         title.setProperty("class", "FormTitle")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -50,7 +50,7 @@ class LoginView(QWidget):
         
         cf_layout.addSpacing(20)
         
-        # Email Input
+        # Campo de correo electrónico
         lbl_email = QLabel("Correo electrónico*:")
         lbl_email.setProperty("class", "FormLabel")
         cf_layout.addWidget(lbl_email)
@@ -61,7 +61,7 @@ class LoginView(QWidget):
         
         cf_layout.addSpacing(5)
         
-        # Password Input
+        # Campo de contraseña
         lbl_password = QLabel("Contraseña*:")
         lbl_password.setProperty("class", "FormLabel")
         cf_layout.addWidget(lbl_password)
@@ -96,14 +96,14 @@ class LoginView(QWidget):
         
         cf_layout.addSpacing(5)
         
-        # Obligatorio Text
+        # Texto indicador de campo obligatorio
         obligatorio = QLabel("*Campos obligatorios")
         obligatorio.setStyleSheet("font-size: 12px; font-weight: bold; color: black;")
         cf_layout.addWidget(obligatorio)
         
         cf_layout.addSpacing(10)
         
-        # Submit Button
+        # Botón de envío
         btn_submit = QPushButton("Ingresar")
         btn_submit.setObjectName("btnLoginSubmit")
         btn_submit.setProperty("class", "DialogButton")
@@ -156,7 +156,7 @@ class LoginView(QWidget):
         
         cf_layout.addSpacing(30)
         
-        # Footer section (Don't have an account?)
+        # Sección de pie de página (¿No tienes una cuenta?)
         lbl_no_account = QLabel("¿No tienes cuenta?")
         lbl_no_account.setStyleSheet("font-size: 18px; font-weight: bold; color: black;")
         lbl_no_account.setAlignment(Qt.AlignmentFlag.AlignCenter)

@@ -6,16 +6,16 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
 def generate_pdf_report(session_data, filepath="outputs/reports/report_emova.pdf"):
     """
-    Generates a PDF report using the centralized session data.
+    Genera un reporte en formato PDF utilizando los datos centralizados de la sesión de prueba.
     """
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
     
     doc = SimpleDocTemplate(filepath, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=18)
     styles = getSampleStyleSheet()
     
-    # Custom styles
+    # Estilos personalizados
     title_style = styles['Heading1']
-    title_style.alignment = 1 # Center
+    title_style.alignment = 1 # Centrado
     
     subtitle_style = styles['Heading2']
     subtitle_style.textColor = colors.HexColor("#7E38B7")
@@ -24,12 +24,12 @@ def generate_pdf_report(session_data, filepath="outputs/reports/report_emova.pdf
     
     elements = []
     
-    # Document Title
+    # Título del documento
     test_id = session_data.get("test_id", "NO_ID")
     elements.append(Paragraph(f"Reporte EMOVA - Prueba #{test_id}", title_style))
     elements.append(Spacer(1, 20))
     
-    # Participant Section
+    # Sección del participante
     elements.append(Paragraph("Datos del Participante", subtitle_style))
     participant = session_data.get("participant", {})
     if participant:
@@ -40,7 +40,7 @@ def generate_pdf_report(session_data, filepath="outputs/reports/report_emova.pdf
         
     elements.append(Spacer(1, 20))
     
-    # Tasks Section
+    # Sección de tareas
     elements.append(Paragraph("Tareas Registradas", subtitle_style))
     tasks = session_data.get("tasks", [])
     if tasks:
@@ -61,7 +61,7 @@ def generate_pdf_report(session_data, filepath="outputs/reports/report_emova.pdf
         
     elements.append(Spacer(1, 20))
     
-    # Seccion de Emociones Detectadas
+    # Sección de emociones detectadas
     elements.append(Paragraph("Registro de Emociones Detectadas (IA)", subtitle_style))
     emotions = session_data.get("emotions", [])
     if emotions:
@@ -74,7 +74,7 @@ def generate_pdf_report(session_data, filepath="outputs/reports/report_emova.pdf
                 task_emotions[task_name] = []
             task_emotions[task_name].append(e)
 
-        # Encabezados de la Tabla (sin Hora)
+        # Encabezados de la tabla (sin hora)
         data = [["Intervalo / Tarea", "Emoción Predominante", "Confianza Promedio"]]
         
         for task, items in task_emotions.items():
@@ -103,7 +103,7 @@ def generate_pdf_report(session_data, filepath="outputs/reports/report_emova.pdf
                 f"{avg_conf:.1f}%"
             ])
             
-        # Construir y pintar la tabla de ReportLab
+        # Construir y renderizar la tabla de ReportLab
         table = Table(data, colWidths=[200, 130, 130])
         table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#7E38B7")),
@@ -149,7 +149,7 @@ def generate_pdf_report(session_data, filepath="outputs/reports/report_emova.pdf
                     if task_title in predominant_emotions and predominant_emotions[task_title]:
                         pred_emo = max(predominant_emotions[task_title], key=predominant_emotions[task_title].get)
                     
-                    # Generar pequeño análisis
+                    # Generar pequeño análisis de consistencia de usabilidad
                     analysis = ""
                     if pred_emo != "-":
                         negative_emotions = ["Angry", "Disgust", "Fear", "Sad"]
@@ -174,12 +174,12 @@ def generate_pdf_report(session_data, filepath="outputs/reports/report_emova.pdf
                             analysis = f"Emoción predominante: '{pred_emo}'."
                     else:
                         analysis = "No se detectaron emociones suficientes durante esta tarea para realizar un análisis."
-
+ 
                     elements.append(Paragraph(f"• <b>{task_title}:</b> Calificación {task_score} / 5", normal_style))
                     elements.append(Paragraph(f"<i>Análisis:</i> {analysis}", normal_style))
                     elements.append(Spacer(1, 5))
             elements.append(Spacer(1, 10))
-
+ 
         elements.append(Paragraph("<b>Evaluación General:</b>", styles['Heading3']))
         questions = {
             "ease_of_use": "Facilidad de Uso Global",
@@ -200,7 +200,8 @@ def generate_pdf_report(session_data, filepath="outputs/reports/report_emova.pdf
     else:
         elements.append(Paragraph("Aún no hay resultados de encuestas.", normal_style))
         
-    # Build PDF
+    # Construir PDF final
     doc.build(elements)
     print(f"PDF Report generated successfully at: {filepath}")
     return filepath
+

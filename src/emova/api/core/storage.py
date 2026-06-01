@@ -1,8 +1,7 @@
 """
-Google Cloud Storage Integration Module.
+Módulo de integración con Google Cloud Storage.
 
-Handles secure uploads of user-related content directly to GCP
-buckets using the asyncio bridge.
+Maneja subidas seguras de reportes directamente a los buckets de GCP.
 """
 import asyncio
 import logging
@@ -13,12 +12,12 @@ from emova.api.core.config import settings
 logger = logging.getLogger(__name__)
 
 class StorageManager:
-    """Manages the connection and actions upon the configured Google Cloud Bucket."""
+    """Administra la conexión y las acciones sobre el Bucket de Google Cloud configurado."""
     _client = None
     
     @classmethod
     def get_client(cls):
-        """Singleton pattern for initializing the Storage client only once."""
+        """Patrón Singleton para inicializar el cliente de almacenamiento una sola vez."""
         if cls._client is None:
             try:
                 if settings.GOOGLE_APPLICATION_CREDENTIALS:
@@ -36,21 +35,21 @@ class StorageManager:
         
     @classmethod
     def _upload_sync(cls, file_bytes: bytes, user_id: str, filename: str) -> str:
-        """Synchronous wrapper for uploading blobs."""
+        """Envoltura síncrona para subir archivos (blobs)."""
         client = cls.get_client()
         if not client:
             raise RuntimeError("Google Cloud Storage client is not initialized. Please verify your credentials and .env configuration.")
             
         bucket = client.bucket(settings.GCS_BUCKET_NAME)
         
-        # We store files isolated by user_id
+        # Almacenamos los archivos aislados por user_id
         blob_path = f"reports/{user_id}/{filename}"
         blob = bucket.blob(blob_path)
         
-        # Execute the network transfer
+        # Ejecutar la transferencia de red
         blob.upload_from_string(file_bytes, content_type="application/pdf")
         
-        # We return the direct storage API URL (Assuming the UI or Mobile app parses it to download)
+        # Retornamos la URL de descarga directa en la API del almacenamiento
         url = f"https://storage.googleapis.com/{settings.GCS_BUCKET_NAME}/{blob_path}"
         logger.info(f"Report PDF successfully uploaded to GCS: {url}")
         return url
@@ -58,14 +57,14 @@ class StorageManager:
     @classmethod
     async def upload_report_pdf(cls, file_bytes: bytes, user_id: str, filename: str) -> str:
         """
-        Asynchronously upload a PDF report to Google Cloud Storage.
-        Offloads the heavy IO blocking synchronous SDK call to a worker thread.
+        Sube asíncronamente un reporte PDF a Google Cloud Storage.
+        Delega la llamada síncrona bloqueante del SDK a un hilo de trabajo.
         """
         return await asyncio.to_thread(cls._upload_sync, file_bytes, user_id, filename)
 
     @classmethod
     def _download_sync(cls, raw_db_url: str) -> bytes:
-        """Synchronously downloads a blob as direct raw bytes parsing its original URI."""
+        """Descarga de forma síncrona un archivo en bytes crudos analizando su URI original."""
         client = cls.get_client()
         bucket = client.bucket(settings.GCS_BUCKET_NAME)
         
@@ -78,6 +77,6 @@ class StorageManager:
     @classmethod
     async def download_report_pdf(cls, raw_db_url: str) -> bytes:
         """
-        Asynchronously downloads a PDF securely without exposing GCS endpoints directly.
+        Descarga asíncronamente un PDF de forma segura sin exponer endpoints de GCS directamente.
         """
         return await asyncio.to_thread(cls._download_sync, raw_db_url)

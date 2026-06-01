@@ -7,47 +7,46 @@ from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkRe
 
 class ApiClient(QObject):
     """
-    Singleton API Client to handle asynchronous HTTP requests interacting
-    with the Emova FastAPI Backend.
+    Cliente API tipo Singleton para manejar peticiones HTTP asíncronas con el backend FastAPI de Emova.
     """
     _instance = None
 
-    # Auth Signals
-    login_success = Signal(str)    # Transmits token
-    login_error = Signal(str)      # Transmits error message
+    # Señales para autenticación
+    login_success = Signal(str)    # Transmite el token JWT al iniciar sesión correctamente
+    login_error = Signal(str)      # Transmite el mensaje de error de inicio de sesión
 
-    # Profile Signals
-    profile_success = Signal(dict)  # Transmits user dict {"email": "..."}
-    profile_error = Signal(str)    # Transmits error message
+    # Señales para el perfil de usuario
+    profile_success = Signal(dict)  # Transmite el diccionario del usuario {"email": "..."}
+    profile_error = Signal(str)    # Transmite el mensaje de error al consultar el perfil
 
-    # Password Change Signals
-    change_password_success = Signal(dict)  # Transmits confirmation
-    change_password_error = Signal(str)    # Transmits error message
+    # Señales para cambio de contraseña
+    change_password_success = Signal(dict)  # Transmite la confirmación del cambio
+    change_password_error = Signal(str)    # Transmite el mensaje de error del cambio
 
-    # Registration Signals
-    # Transmits user dict {"id": "...", "email": "..."}
+    # Señales para registro de usuario
+    # Transmite el diccionario del usuario registrado {"id": "...", "email": "..."}
     register_success = Signal(dict)
-    register_error = Signal(str)    # Transmits error message
+    register_error = Signal(str)    # Transmite el mensaje de error al registrar
 
-    # Recovery Signals
+    # Señales para recuperación de contraseña
     forgot_password_success = Signal(dict)
     forgot_password_error = Signal(str)
     reset_password_success = Signal(dict)
     reset_password_error = Signal(str)
 
-    # Report Submitting Signals
+    # Señales para envío de reportes
     upload_report_success = Signal(dict)
     upload_report_error = Signal(str)
 
-    # History viewing signals
+    # Señales para visualización del historial
     history_success = Signal(list)
     history_error = Signal(str)
 
-    # Download signals
+    # Señales para descarga de reportes
     download_report_success = Signal(str)
     download_report_error = Signal(str)
 
-    # Delete signals
+    # Señales para eliminación de reportes
     delete_report_success = Signal(dict)
     delete_report_error = Signal(str)
 
@@ -60,10 +59,10 @@ class ApiClient(QObject):
     def __init__(self):
         super().__init__()
         self.manager = QNetworkAccessManager(self)
-        # Apuntando a tu nueva API en Producción (Google Cloud Run)
+        # Configuración de la URL base para el entorno de producción (Google Cloud Run)
         self.base_url = "https://emova-api-490638015196.us-central1.run.app"
 
-        # Persistencia en Disco / Registro nativo
+        # Configuración para la persistencia local del token de sesión
         self.settings = QSettings("EMOVA", "EmovaClient")
         self.token = self.settings.value("auth_token", None)
 
@@ -85,15 +84,19 @@ class ApiClient(QObject):
         return req
 
     def _parse_error(self, body: dict, error_code: str = "ERR_API_00") -> str:
-        """Extracts readable error text from FastAPI dictionaries or PyDantic Validation 422 Arrays."""
+        """
+        Extrae un mensaje de error legible a partir de diccionarios de FastAPI o arreglos de PyDantic.
+        """
         detail = body.get("detail", "Error desconocido.")
         if isinstance(detail, list) and len(detail) > 0:
             msg = detail[0].get("msg", "Error de validación.")
-            return f"[{error_code}] {msg.replace('Value error, ', '')}"  # Clean up pydantic prefix
+            return f"[{error_code}] {msg.replace('Value error, ', '')}"  # Elimina el prefijo pydantic
         return f"[{error_code}] {str(detail)}"
 
     def login(self, email: str, password: str):
-        """Dispatches an asynchronous login POST to the OAuth2 form endpoint."""
+        """
+        Realiza una petición POST asíncrona para iniciar sesión.
+        """
         url = QUrl(f"{self.base_url}/auth/login")
         request = QNetworkRequest(url)
         request.setHeader(QNetworkRequest.KnownHeaders.ContentTypeHeader,
@@ -113,7 +116,7 @@ class ApiClient(QObject):
                     body = json.loads(res_text)
                     self.set_token(body.get("access_token"))
                     self.login_success.emit(self.token)
-                    # Automatically fetch profile to hydrate the UI
+                    # Consulta el perfil automáticamente para actualizar la interfaz
                     self.fetch_profile()
                 except Exception as e:
                     self.login_error.emit(
@@ -130,7 +133,9 @@ class ApiClient(QObject):
         reply.finished.connect(handle_reply)
 
     def register(self, email: str, password: str):
-        """Dispatches an asynchronous signup POST to the users JSON endpoint."""
+        """
+        Registra un nuevo usuario enviando una petición POST asíncrona al backend.
+        """
         request = self._create_json_request("/users/")
 
         payload = {
@@ -162,7 +167,9 @@ class ApiClient(QObject):
         reply.finished.connect(handle_reply)
 
     def fetch_profile(self):
-        """Asynchronously triggers a GET request to /users/me using the accumulated local token."""
+        """
+        Obtiene la información del perfil del usuario actual mediante una petición GET asíncrona.
+        """
         if not self.token:
             self.profile_error.emit("[ERR_AUTH_03] Sesión no iniciada.")
             return
@@ -187,7 +194,9 @@ class ApiClient(QObject):
         reply.finished.connect(handle_reply)
 
     def change_password(self, old_password: str, new_password: str):
-        """Asynchronously triggers a PUT request to /users/me/password to update credentials."""
+        """
+        Modifica la contraseña del usuario actual mediante una petición PUT asíncrona.
+        """
         if not self.token:
             self.change_password_error.emit(
                 "[ERR_AUTH_03] Sesión no iniciada. No se pudo hacer el cambio.")
@@ -201,7 +210,7 @@ class ApiClient(QObject):
         }
         data = QByteArray(json.dumps(payload).encode('utf-8'))
 
-        # Use PUT as specified in users.py
+        # Utiliza el método PUT definido en el controlador del backend
         reply = self.manager.put(request, data)
 
         def handle_reply():
@@ -226,7 +235,9 @@ class ApiClient(QObject):
         reply.finished.connect(handle_reply)
 
     def forgot_password(self, email: str):
-        """Asynchronously triggers a POST request to /auth/forgot-password to request a recovery code."""
+        """
+        Solicita un código de recuperación de contraseña mediante una petición POST asíncrona.
+        """
         request = self._create_json_request("/auth/forgot-password")
 
         payload = {"email": email}
@@ -256,7 +267,9 @@ class ApiClient(QObject):
         reply.finished.connect(handle_reply)
 
     def reset_password(self, email: str, code: str, new_password: str):
-        """Asynchronously triggers a POST request to /auth/reset-password to set a new password."""
+        """
+        Restablece la contraseña utilizando el código de verificación recibido.
+        """
         request = self._create_json_request("/auth/reset-password")
 
         payload = {
@@ -290,7 +303,9 @@ class ApiClient(QObject):
         reply.finished.connect(handle_reply)
 
     def upload_report(self, filepath: str, test_name: str = "Prueba General"):
-        """Asynchronously triggers a POST request to /reports/upload with a Multipart PDF file."""
+        """
+        Sube el reporte en formato PDF al servidor mediante una petición POST multipart asíncrona.
+        """
         if not self.token:
             self.upload_report_error.emit(
                 "[ERR_AUTH_03] Sesión no iniciada. No se puede subir el archivo.")
@@ -351,7 +366,9 @@ class ApiClient(QObject):
         reply.finished.connect(handle_reply)
 
     def fetch_history(self):
-        """Asynchronously triggers a GET request to /reports/."""
+        """
+        Descarga el historial de reportes asociados al usuario mediante una petición GET asíncrona.
+        """
         if not self.token:
             self.history_error.emit("[ERR_AUTH_03] Sesión no iniciada.")
             return
@@ -376,7 +393,9 @@ class ApiClient(QObject):
         reply.finished.connect(handle_reply)
 
     def download_report(self, report_id: str, out_file: str):
-        """Asynchronously pulls raw bytes from API proxy to bypass GCS permissions."""
+        """
+        Descarga los bytes crudos del reporte PDF a través de la API para omitir la seguridad del bucket.
+        """
         if not self.token:
             self.download_report_error.emit("[ERR_AUTH_03] Sesión no iniciada.")
             return
@@ -402,7 +421,9 @@ class ApiClient(QObject):
         reply.finished.connect(handle_reply)
 
     def delete_report(self, report_id: str):
-        """Asynchronously triggers a DELETE request to /reports/{report_id} to remove the report metadata."""
+        """
+        Elimina el registro de un reporte a través de una petición DELETE asíncrona al backend.
+        """
         if not self.token:
             self.delete_report_error.emit("[ERR_AUTH_03] Sesión no iniciada. No se puede eliminar.")
             return

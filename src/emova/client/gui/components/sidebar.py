@@ -11,6 +11,10 @@ from emova.client.api_client import ApiClient
 
 
 class Sidebar(QWidget):
+    """
+    Barra lateral izquierda de navegación para el dashboard.
+    Permite generar reportes y consultar el historial de reportes sincronizados.
+    """
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setFixedWidth(200)
@@ -21,7 +25,7 @@ class Sidebar(QWidget):
 
         layout.addStretch()  # Empuja hacia abajo para centrar
 
-        # Absolute path to assets/images
+        # Ruta absoluta a assets/images
         current_dir = os.path.dirname(os.path.abspath(__file__))
         icons_dir = os.path.abspath(os.path.join(
             current_dir, "..", "assets", "images"))
@@ -77,7 +81,7 @@ class Sidebar(QWidget):
     def trigger_pdf_generation(self):
         data = session_manager.get_report_data()
 
-        # Native OS Save Dialog
+        # Diálogo de guardado nativo del sistema operativo
         test_id = session_manager.test_id if hasattr(
             session_manager, 'test_id') else "Desconocido"
         default_filename = f"Reporte_EMOVA_{test_id}.pdf"
@@ -90,7 +94,7 @@ class Sidebar(QWidget):
             file_filter
         )
 
-        # If user cancelled the dialog, out_file will be empty string
+        # Si el usuario cancela el diálogo, out_file será una cadena vacía
         if not out_file:
             return
 
@@ -108,7 +112,7 @@ class Sidebar(QWidget):
             if hasattr(main_win, 'header') and hasattr(main_win.header, 'project_label'):
                 main_win.header.project_label.setText(session_manager.test_id)
 
-            # Show the centered Modal explicitly requiring user to press "Aceptar"
+            # Muestra el modal centrado que requiere que el usuario presione "Aceptar"
             dialog = CustomDialog(
                 parent=self.window(),
                 title="Sincronizando...",

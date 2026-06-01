@@ -73,11 +73,11 @@ class DashboardView(QWidget):
         main_layout.setContentsMargins(20, 20, 20, 20)
         main_layout.setSpacing(20)
         
-        # Left side containing top actions, video, and bottom actions
+        # Lado izquierdo que contiene acciones superiores, video y acciones inferiores
         left_layout = QVBoxLayout()
         left_layout.setSpacing(20)
         
-        # Top actions
+        # Acciones superiores
         top_actions_layout = QHBoxLayout()
         top_actions_layout.setSpacing(15)
         
@@ -107,18 +107,18 @@ class DashboardView(QWidget):
         top_actions_layout.addWidget(btn_repeat_test)
         top_actions_layout.addStretch()
         
-        # Central Video + Overlay Stack
+        # Contenedor central de video y overlay
         self.central_video_container = QWidget()
         central_video_layout = QGridLayout(self.central_video_container)
         central_video_layout.setContentsMargins(0, 0, 0, 0)
         
-        # Video Player
+        # Reproductor de video
         self.video_player = VideoPlayer()
         
-        # Task Overlay (Flotante)
-        # Parent is self (DashboardView) so it doesn't get clipped by the video container
+        # Superposición de tarea (flotante)
+        # El contenedor padre es self para evitar recortes del video
         self.task_overlay = TaskOverlay(self)
-        self.task_overlay.hide() # Hidden by default
+        self.task_overlay.hide() # Oculto por defecto
         self.task_overlay.task_started.connect(self.handle_task_started)
         self.task_overlay.task_completed.connect(self.handle_task_completed)
         self.task_overlay.task_cancelled.connect(self.handle_task_cancelled)
@@ -126,14 +126,14 @@ class DashboardView(QWidget):
         self.current_task_index = 0
         self.current_task_start_time = 0
         
-        # Agregar SOLO el video player al grid layout
+        # Agregar únicamente el reproductor de video al diseño de cuadrícula
         central_video_layout.addWidget(self.video_player, 0, 0)
         
-        # Absolute path to assets/images
+        # Ruta absoluta a assets/images
         current_dir = os.path.dirname(os.path.abspath(__file__))
         icons_dir = os.path.abspath(os.path.join(current_dir, "..", "assets", "images"))
         
-        # Bottom analysis actions
+        # Acciones de análisis inferiores
         bottom_actions_layout = QHBoxLayout()
         
         camera_layout = QVBoxLayout()
@@ -193,7 +193,7 @@ class DashboardView(QWidget):
         self.btn_stop_analysis.setIcon(icon_pause)
         self.btn_stop_analysis.setProperty("class", "AnalysisButton")
         self.btn_stop_analysis.clicked.connect(self.stop_camera)
-        self.btn_stop_analysis.setEnabled(False) # Disabled initially
+        self.btn_stop_analysis.setEnabled(False) # Deshabilitado inicialmente
         
         bottom_actions_layout.addStretch()
         
@@ -211,24 +211,24 @@ class DashboardView(QWidget):
         bottom_actions_layout.addWidget(self.btn_stop_analysis)
         bottom_actions_layout.addStretch()
         
-        # Assembly left side
+        # Ensamblar lado izquierdo
         left_layout.addLayout(top_actions_layout)
         left_layout.addWidget(self.central_video_container, stretch=1)
         left_layout.addLayout(bottom_actions_layout)
         
-        # Right Sidebar
+        # Barra lateral derecha
         self.sidebar = Sidebar()
         
-        # Assemble overall
+        # Ensamblar interfaz global
         main_layout.addLayout(left_layout, stretch=1)
         main_layout.addWidget(self.sidebar)
         
-        # Initialize camera thread
+        # Inicializar el hilo de la cámara
         self.camera_thread = CameraThread()
         self.camera_thread.frame_ready.connect(self.video_player.update_frame)
         self.camera_thread.emotion_ready.connect(self.handle_emotion)
         
-        # Asegurar que los recuadros flotantes siempre estén visualmente por encima del video
+        # Asegurar que los componentes flotantes estén visualmente por encima del video
         self.task_overlay.raise_()
 
     def show_privacy_notice(self):
@@ -255,7 +255,7 @@ class DashboardView(QWidget):
         
         self.current_task_index = 0
         
-        # Start showing tasks directly
+        # Iniciar la presentación directa de tareas
         self.show_current_task()
         
     def show_current_task(self):
@@ -266,13 +266,13 @@ class DashboardView(QWidget):
             self.task_overlay.show()
             self.task_overlay.raise_()
             
-            # Centrar el widget flotante respecto al central_video_container, pero relativo a self
+            # Centrar el componente flotante respecto al contenedor de video
             video_rect = self.central_video_container.geometry()
             x = video_rect.x() + (video_rect.width() - self.task_overlay.width()) // 2
             y = video_rect.y() + (video_rect.height() - self.task_overlay.height()) // 2
             self.task_overlay.move(max(0, x), max(0, y))
             
-            # Time tracking starts when user clicks 'Iniciar Tarea' in handle_task_started
+            # El registro de tiempo inicia al hacer clic en 'Iniciar Tarea'
         else:
             self.task_overlay.hide()
             self.stop_camera()
@@ -292,10 +292,10 @@ class DashboardView(QWidget):
         if hasattr(self, 'camera_thread'):
             self.camera_thread.is_detecting = False
             
-        # Calculate duration and save to session manager
+        # Calcular la duración de la tarea y guardarla en el administrador de sesión
         duration = int(time.time() - self.current_task_start_time)
         
-        # Ensure the tasks array is up to date and can hold this info
+        # Asegurar que el arreglo de tareas en sesión esté actualizado
         tasks = session_manager.tasks
         if self.current_task_index < len(tasks):
             tasks[self.current_task_index]["duration_seconds"] = duration
@@ -307,7 +307,7 @@ class DashboardView(QWidget):
         if hasattr(self, 'camera_thread'):
             self.camera_thread.is_detecting = False
         self.task_overlay.hide()
-        # Optionally, could also stop analysis here if cancelling a task means aborting.
+        # Opcional: se podría detener el análisis si se cancela la tarea
         
     def stop_camera(self):
         if hasattr(self, 'camera_thread'):
@@ -324,12 +324,12 @@ class DashboardView(QWidget):
         
     @Slot(str, float)
     def handle_emotion(self, emotion, confidence):
-        # Comprobar si hay una tarea corriendo para añadirle el nombre propio
+        # Verificar si hay una tarea en ejecución para asociarle su nombre
         task_title = f"Tarea {self.current_task_index + 1}"
         if hasattr(session_manager, 'tasks') and self.current_task_index < len(session_manager.tasks):
             task_title = session_manager.tasks[self.current_task_index].get("title", task_title)
             
-        # Anexar seguro
+        # Guardar de forma segura
         if not hasattr(session_manager, 'emotions'):
             session_manager.emotions = []
             
@@ -341,7 +341,7 @@ class DashboardView(QWidget):
         })
 
     def closeEvent(self, event):
-        # Ensure thread is stopped when dashboard is closed
+        # Asegurar que el hilo se detenga al cerrar el dashboard
         if hasattr(self, 'camera_thread') and self.camera_thread.isRunning():
             self.camera_thread.stop()
         super().closeEvent(event)

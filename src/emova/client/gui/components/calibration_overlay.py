@@ -53,7 +53,7 @@ class CalibrationOverlay(QFrame):
         self.main_layout.addWidget(self.image_label, alignment=Qt.AlignmentFlag.AlignCenter)
         self.main_layout.addWidget(self.status_label)
         
-        self.current_phase = "" # "positive" or "negative"
+        self.current_phase = "" # "positive" (positivo) o "negative" (negativo)
         self.latest_emotion = None
         self.latest_confidence = 0.0
         
@@ -61,7 +61,7 @@ class CalibrationOverlay(QFrame):
         self.timer.setSingleShot(True)
         self.timer.timeout.connect(self.capture_and_next)
         
-        # Paths to images
+        # Rutas de las imágenes para calibración
         base_dir = os.getcwd()
         self.pos_dir = os.path.join(base_dir, "docs", "CALIBRACION", "POSITIVO")
         self.neg_dir = os.path.join(base_dir, "docs", "CALIBRACION", "NEGATIVO")
@@ -72,13 +72,13 @@ class CalibrationOverlay(QFrame):
         self.load_phase("positive")
         
     def update_latest_emotion(self, emotion, confidence):
-        # Called constantly from dashboard via camera_thread
+        # Llamado constantemente desde el dashboard a través de camera_thread
         self.latest_emotion = emotion
         self.latest_confidence = confidence
         
     def load_phase(self, phase):
         self.current_phase = phase
-        self.latest_emotion = None # reset
+        self.latest_emotion = None # Restablecer estado
         directory = self.pos_dir if phase == "positive" else self.neg_dir
         
         try:
@@ -96,14 +96,14 @@ class CalibrationOverlay(QFrame):
         self.status_label.setText("Por favor, espere un momento mientras capturamos sus expresiones faciales.")
         self.status_label.setStyleSheet("color: #E67E22; font-weight: bold; font-size: 16px;")
         
-        # Wait 5 seconds
+        # Esperar 5 segundos
         self.timer.start(5000)
         
     def capture_and_next(self):
         self.status_label.setText("¡Capturado!")
         self.status_label.setStyleSheet("color: #27AE60; font-weight: bold;")
         
-        # Store in SessionManager 
+        # Guardar en SessionManager
         if self.latest_emotion:
             session_manager.set_calibration(
                 self.current_phase, 
@@ -111,7 +111,7 @@ class CalibrationOverlay(QFrame):
                 self.latest_confidence
             )
         else:
-            # Fallback if no emotion was detected during that time
+            # Respaldo en caso de que no se detecte ninguna emoción en ese periodo
             session_manager.set_calibration(self.current_phase, "Desconocido", 0.0)
             
         if self.current_phase == "positive":

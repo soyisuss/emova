@@ -18,7 +18,7 @@ class RegisterUserView(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(40, 20, 40, 20)
         
-        # Back button row
+        # Fila del botón de regreso
         back_layout = QHBoxLayout()
         self.btn_back = QPushButton("← Regresar")
         self.btn_back.setProperty("class", "BackButton")
@@ -30,7 +30,7 @@ class RegisterUserView(QWidget):
         
         layout.addSpacing(10)
         
-        # Center container
+        # Contenedor central
         center_layout = QVBoxLayout()
         center_layout.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)
         center_widget = QWidget()
@@ -38,7 +38,7 @@ class RegisterUserView(QWidget):
         cf_layout = QVBoxLayout(center_widget)
         cf_layout.setSpacing(5)
         
-        # Title
+        # Título
         title = QLabel("Crear Cuenta")
         title.setProperty("class", "FormTitle")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -47,7 +47,7 @@ class RegisterUserView(QWidget):
         
         cf_layout.addSpacing(20)
         
-        # Email Input
+        # Campo de correo electrónico
         lbl_email = QLabel("Correo electrónico*:")
         lbl_email.setProperty("class", "FormLabel")
         cf_layout.addWidget(lbl_email)
@@ -57,7 +57,7 @@ class RegisterUserView(QWidget):
         
         cf_layout.addSpacing(5)
         
-        # Password Input
+        # Campo de contraseña
         lbl_password = QLabel("Contraseña*:")
         lbl_password.setProperty("class", "FormLabel")
         cf_layout.addWidget(lbl_password)
@@ -115,7 +115,7 @@ class RegisterUserView(QWidget):
         update_rules_ui("")
         self.input_password.textChanged.connect(update_rules_ui)
         
-        # Confirm password
+        # Confirmar contraseña
         lbl_confirm = QLabel("Confirmar contraseña*:")
         lbl_confirm.setProperty("class", "FormLabel")
         cf_layout.addWidget(lbl_confirm)
@@ -148,12 +148,12 @@ class RegisterUserView(QWidget):
         
         cf_layout.addSpacing(5)
         
-        # Error message mapping
+        # Mapeo de mensajes de error
         self.lbl_error = QLabel("La contraseña no coincide")
         self.lbl_error.setStyleSheet("color: #8C1C13; font-size: 14px; font-weight: bold;")
         self.lbl_error.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lbl_error.setWordWrap(True)
-        self.lbl_error.hide() # Hidden by default
+        self.lbl_error.hide() # Oculto por defecto
         cf_layout.addWidget(self.lbl_error)
         
         def validate_passwords():
@@ -167,16 +167,16 @@ class RegisterUserView(QWidget):
         self.input_password.textChanged.connect(validate_passwords)
         self.input_confirm.textChanged.connect(validate_passwords)
         
-        # Obligatorio Text
+        # Texto indicador de campo obligatorio
         obligatorio = QLabel("*Campos obligatorios")
         obligatorio.setStyleSheet("font-size: 12px; font-weight: bold; color: black;")
         cf_layout.addWidget(obligatorio)
         
         cf_layout.addSpacing(10)
         
-        # Submit Button
+        # Botón de envío
         btn_submit = QPushButton("Registrarse")
-        btn_submit.setProperty("class", "DialogButton") # Reusing similar styling
+        btn_submit.setProperty("class", "DialogButton") # Reutiliza el estilo visual existente
         btn_submit.setCursor(Qt.CursorShape.PointingHandCursor)
         btn_submit.setMinimumWidth(200)
         self.btn_submit = btn_submit
@@ -210,7 +210,7 @@ class RegisterUserView(QWidget):
         
         cf_layout.addSpacing(30)
         
-        # Footer section (Already have an account?)
+        # Sección de pie de página (¿Ya tienes una cuenta?)
         lbl_has_account = QLabel("¿Ya tienes cuenta?")
         lbl_has_account.setStyleSheet("font-size: 18px; font-weight: bold; color: black;")
         lbl_has_account.setAlignment(Qt.AlignmentFlag.AlignCenter)

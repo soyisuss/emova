@@ -35,7 +35,7 @@ class LoadTestDialog(QDialog):
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.layout.addWidget(title)
         
-        # Scroll Area for the list
+        # Área de desplazamiento para la lista
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
         self.scroll_area.setFrameShape(QFrame.Shape.NoFrame)
@@ -49,7 +49,7 @@ class LoadTestDialog(QDialog):
         self.scroll_area.setWidget(self.scroll_widget)
         self.layout.addWidget(self.scroll_area, stretch=1)
         
-        # Bottom Layout
+        # Diseño inferior
         btn_layout = QHBoxLayout()
         btn_close = QPushButton("Cerrar")
         btn_close.setProperty("class", "DialogButton")
@@ -70,11 +70,11 @@ class LoadTestDialog(QDialog):
         loading_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.list_layout.addWidget(loading_label)
         
-        # Necesitamos procesar la red de manera sincrona/asincrona (PySide6 no le gusta bloquear, usamos request simple por ahora)
+        # Necesitamos procesar la red de manera asíncrona (se evita bloquear el hilo principal de PySide6).
         QApplication.processEvents()
         
         try:
-            # Reemplazar por url de la api centralizada en settings en un entorno productivo
+            # TODO: Reemplazar por la URL de la API centralizada en la configuración en producción.
             from emova.client.api_client import ApiClient
             api_client = ApiClient.get_instance()
             base_url = api_client.base_url
@@ -123,7 +123,7 @@ class LoadTestDialog(QDialog):
         lbl_msg.setStyleSheet("font-size: 20px; color: #555555; font-weight: bold; margin-bottom: 20px;")
         lbl_msg.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
-        # Opcional, un botón o texto de ayuda extra
+        # Opcional: botón o texto de ayuda adicional
         lbl_sub = QLabel("Genera una prueba en 'Agregar tareas' y finaliza el registro\npara que aparezca aquí.")
         lbl_sub.setStyleSheet("font-size: 14px; color: #888888;")
         lbl_sub.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -151,8 +151,8 @@ class LoadTestDialog(QDialog):
         l.setContentsMargins(15, 15, 15, 15)
         
         info_layout = QVBoxLayout()
-        # Parse datetime
-        # Fastapi returns ISO format like: "2023-10-05T14:48:00"
+        # Procesar fecha y hora
+        # FastAPI retorna el formato ISO: "2023-10-05T14:48:00"
         try:
             dt = datetime.fromisoformat(tmpl["createdAt"].replace("Z", "+00:00"))
             date_str = dt.strftime("%d/%m/%Y %H:%M")

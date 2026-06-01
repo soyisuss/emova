@@ -21,13 +21,13 @@ class PasswordRecoveryView(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(40, 20, 40, 20)
         
-        # Back button row
+        # Fila del botón de regreso
         back_layout = QHBoxLayout()
         self.btn_back = QPushButton("← Regresar")
         self.btn_back.setProperty("class", "BackButton")
         self.btn_back.setCursor(Qt.CursorShape.PointingHandCursor)
         
-        # Hook go_back to also reset state when returning to login
+        # Conectar go_back para restablecer el estado al volver a login
         self.btn_back.clicked.connect(self._go_back_clicked)
         back_layout.addWidget(self.btn_back)
         back_layout.addStretch()
@@ -42,7 +42,7 @@ class PasswordRecoveryView(QWidget):
         self.setup_reset_page()
 
     def _go_back_clicked(self):
-        # Reset current stack index to 0 when going back, so next time we open it's on step 1
+        # Restablece el índice a 0 al volver para iniciar en el paso 1 en la siguiente ocasión
         self.stack.setCurrentIndex(0)
         self.input_email.clear()
         self.input_code.clear()
@@ -190,7 +190,7 @@ class PasswordRecoveryView(QWidget):
             )
             
         self.input_new.textChanged.connect(update_password_rules)
-        update_password_rules() # Initialize the form with grey rules
+        update_password_rules() # Inicializar el formulario con estilos predeterminados.
         
         lbl_confirm = QLabel("Confirmar contraseña:")
         lbl_confirm.setProperty("class", "FormLabel")

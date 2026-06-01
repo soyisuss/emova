@@ -6,52 +6,56 @@ import os
 from emova.core.session.session_manager import session_manager
 
 class TopHeader(QWidget):
+    """
+    Cabecera superior común de la aplicación. Muestra el identificador de la prueba,
+    el logo y el menú de acceso/cuenta del usuario evaluador.
+    """
     go_to_password_change = Signal()
     logout_requested = Signal()
     
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setFixedHeight(100) # Increased height for scaling
-        self.setStyleSheet("background-color: transparent;") # Remove grey background
-
+        self.setFixedHeight(100) # Altura incrementada para escalado
+        self.setStyleSheet("background-color: transparent;") # Remueve el fondo gris
+ 
         layout = QHBoxLayout(self)
         layout.setContentsMargins(40, 0, 40, 0)
         
-        # Project ID
+        # ID de la prueba
         self.project_label = QLabel(session_manager.test_id)
         self.project_label.setObjectName("HeaderProject")
-        self.project_label.setFixedWidth(80) # Fixed width for proper centering
+        self.project_label.setFixedWidth(80) # Ancho fijo para centrado correcto
         layout.addWidget(self.project_label)
         
-        layout.addStretch() # Spacer before logo
+        layout.addStretch() # Espaciador antes del logo
         
-        # Logo Image
+        # Imagen del logo
         self.logo_label = QLabel()
         self.logo_label.setObjectName("HeaderLogo")
-        self.logo_label.setAlignment(Qt.AlignmentFlag.AlignCenter) # Ensure label content is centered
+        self.logo_label.setAlignment(Qt.AlignmentFlag.AlignCenter) # Asegura que el contenido de la etiqueta esté centrado
         
-        # Correctly resolve the absolute path to the client/gui/assets/images directory
-        # __file__ is at emova/src/emova/client/gui/components/header.py
+        # Resuelve correctamente la ruta absoluta al directorio assets/images
+        # __file__ se encuentra en emova/src/emova/client/gui/components/header.py
         current_dir = os.path.dirname(os.path.abspath(__file__))
         gui_root = os.path.abspath(os.path.join(current_dir, ".."))
         logo_path = os.path.join(gui_root, "assets", "images", "emova-logo.png")
-             
+              
         if os.path.exists(logo_path):
             pixmap = QPixmap(logo_path)
-            # Scale the logo to fit nicely in the new enlarged header (80px height)
+            # Escala el logo para ajustarse a la nueva cabecera de mayor altura (80px)
             self.logo_label.setPixmap(pixmap.scaledToHeight(80, Qt.TransformationMode.SmoothTransformation))
         else:
-            self.logo_label.setText(f"EMOVA (Missing: {logo_path})")
-
+            self.logo_label.setText(f"EMOVA (Falta: {logo_path})")
+ 
         layout.addWidget(self.logo_label, alignment=Qt.AlignmentFlag.AlignCenter)
         
-        layout.addStretch() # Spacer after logo
+        layout.addStretch() # Espaciador después del logo
         
-        # Spacer
+        # Espaciador
         layout.addStretch()
         
-        # User Button
-        self.user_button = QPushButton("👤 Mi Cuenta") # Added descriptive text
+        # Botón de cuenta de usuario
+        self.user_button = QPushButton("👤 Mi Cuenta") # Se agrega texto descriptivo
         self.user_button.setObjectName("UserButton")
         self.user_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.user_button.setStyleSheet("""
@@ -63,11 +67,11 @@ class TopHeader(QWidget):
             }
         """)
         
-        # Setup dropdown menu
+        # Configuración del menú desplegable
         self.user_menu = QMenu(self)
         self.user_menu.setContentsMargins(0, 0, 0, 0)
         
-        # We will use a QStackedWidget embedded in the menu to cleanly toggle states
+        # Usamos un QStackedWidget dentro del menú para alternar de forma limpia entre estados
         self.menu_stack = QStackedWidget()
         self.menu_stack.setStyleSheet("""
             QStackedWidget {
@@ -78,7 +82,7 @@ class TopHeader(QWidget):
             QLabel { border: none; }
         """)
         
-        # ---------------- GUEST PAGE ----------------
+        # ---------------- VISTA DE INVITADO (GUEST) ----------------
         self.page_guest = QWidget()
         guest_layout = QVBoxLayout(self.page_guest)
         guest_layout.setContentsMargins(15, 15, 15, 15)
@@ -118,7 +122,7 @@ class TopHeader(QWidget):
         
         self.menu_stack.addWidget(self.page_guest)
         
-        # ---------------- AUTH PAGE ----------------
+        # ---------------- VISTA DE USUARIO AUTENTICADO (AUTH) ----------------
         self.page_auth = QWidget()
         auth_layout = QVBoxLayout(self.page_auth)
         auth_layout.setContentsMargins(15, 15, 15, 15)
@@ -143,7 +147,7 @@ class TopHeader(QWidget):
         
         self.menu_stack.addWidget(self.page_auth)
         
-        # Action embedding
+        # Integración del widget de menú
         widget_action = QWidgetAction(self)
         widget_action.setDefaultWidget(self.menu_stack)
         self.user_menu.addAction(widget_action)
